@@ -5,7 +5,7 @@
 
 
 #include <Wire.h>    // I2C library
-#include "CCS811.h"  // CCS811 library
+#include "ccs811.h"  // CCS811 library
 
 CCS811 ccs811(D3);
 
