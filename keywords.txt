@@ -1,0 +1,34 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+# https://spencer.bliven.us/index.php/2012/01/18/arduino-ide-keywords/
+# KEYWORD1 Classes, datatypes, and C++ keywords
+# KEYWORD2 Methods and functions
+# KEYWORD3 setup and loop functions, as well as the Serial keywords
+# LITERAL1 Constants
+# LITERAL2 Built-in variables (unused by default)
+
+
+#######################################
+# Classes, datatypes (KEYWORD1)
+#######################################
+CCS811	KEYWORD1
+ccs811	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin	KEYWORD2
+start KEYWORD2
+read	KEYWORD2
+errstat_ok	KEYWORD2
+errstat_str	KEYWORD2
+
+######################################
+# Constants (LITERAL1)
+#######################################
+CCS811_MODE_IDLE	LITERAL1
+CCS811_MODE_1SEC	LITERAL1
+CCS811_MODE_10SEC	LITERAL1
+CCS811_MODE_60SEC	LITERAL1
+
