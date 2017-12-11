@@ -1,4 +1,4 @@
-# iAQcore
+# CCS811
 Arduino library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
 
 ## Introduction
@@ -32,7 +32,7 @@ It is assumed that
 
 ## Installation
 Installation steps
- - Visit the [project page](https://github.com/maarten-pennings/iAQcore) for the Arduino iAQcore library.
+ - Visit the [project page](https://github.com/maarten-pennings/CCS811) for the Arduino CCS811 library.
  - Click the green button `Clone or download` on the right side.
  - From the pop-up choose `Download ZIP`.
  - Unzip the file "Here", so that this `README.md` is in the top-level directory
@@ -88,7 +88,7 @@ For the Arduino Nano, connect as follows  (I did not use pull-ups, presumably th
 
 ![wiring nano](wire-nanov3.jpg)
 
-Connect the iAQcore module as follows
+Connect the CCS811 module as follows
 
 ![wiring CCS811](wire-ccs811.jpg)
 
@@ -112,43 +112,27 @@ To build an example sketch
  - Make sure Tools > Board lists the correct board.
  - Select Sketch > Upload.
  - Select Tools > Serial Monitor.
- - Enjoy the output, which should be like this for `iAQcore-simple`:
+ - Enjoy the output, which should be like this for `CCS811demo`:
 
      ```Text
-     Starting iAQcore simple demo
-     iAQcore: eco2=456 ppm,  stat=0x0,  resist=363157 ohm,  tvoc=127 ppb
-     iAQcore: eco2=453 ppm,  stat=0x0,  resist=363586 ohm,  tvoc=126 ppb
-     iAQcore: eco2=455 ppm,  stat=0x0,  resist=363157 ohm,  tvoc=127 ppb
-     iAQcore: eco2=450 ppm,  stat=0x0,  resist=364447 ohm,  tvoc=125 ppb
-     iAQcore: eco2=450 ppm,  stat=0x0,  resist=364878 ohm,  tvoc=125 ppb
-     iAQcore: eco2=605 ppm,  stat=0x0,  resist=331010 ohm,  tvoc=168 ppb
-     iAQcore: eco2=1560 ppm,  stat=0x0,  resist=212175 ohm,  tvoc=431 ppb
-     iAQcore: eco2=3721 ppm,  stat=0x0,  resist=117065 ohm,  tvoc=1026 ppb
-     iAQcore: eco2=4749 ppm,  stat=0x0,  resist=96488 ohm,  tvoc=1309 ppb
-     iAQcore: eco2=6127 ppm,  stat=0x0,  resist=78091 ohm,  tvoc=1689 ppb
-     iAQcore: eco2=4822 ppm,  stat=0x0,  resist=95307 ohm,  tvoc=1329 ppb
-     iAQcore: eco2=3645 ppm,  stat=0x0,  resist=118936 ohm,  tvoc=1005 ppb
-     iAQcore: eco2=2830 ppm,  stat=0x0,  resist=143618 ohm,  tvoc=781 ppb
-     iAQcore: eco2=2221 ppm,  stat=0x0,  resist=169921 ohm,  tvoc=613 ppb
-     iAQcore: eco2=1483 ppm,  stat=0x0,  resist=218476 ohm,  tvoc=410 ppb
-     iAQcore: eco2=1091 ppm,  stat=0x0,  resist=257597 ohm,  tvoc=302 ppb
-     iAQcore: eco2=912 ppm,  stat=0x0,  resist=280448 ohm,  tvoc=253 ppb
-     iAQcore: eco2=852 ppm,  stat=0x0,  resist=289063 ohm,  tvoc=236 ppb
-     iAQcore: eco2=824 ppm,  stat=0x0,  resist=293181 ohm,  tvoc=228 ppb
+     Starting CCS811 simple demo
+     init: I2C up
+     init: CCS811 up
+     init: CCS811 started
+     CCS811: eco2=65021 ppm,  tvoc=65021 ppb,  errstat=0--vhxmrwf--ad-ie=ERROR|OLD,  raw=0 6uA/10ADC
+     CCS811: eco2=400 ppm,  tvoc=0 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3649 6uA/10ADC
+     CCS811: eco2=400 ppm,  tvoc=0 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3651 6uA/10ADC
+     CCS811: eco2=406 ppm,  tvoc=0 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3649 6uA/10ADC
+     CCS811: eco2=410 ppm,  tvoc=1 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3647 6uA/10ADC
+     CCS811: eco2=414 ppm,  tvoc=2 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3646 6uA/10ADC
+     CCS811: eco2=679 ppm,  tvoc=42 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3516 6uA/10ADC
+     CCS811: eco2=501 ppm,  tvoc=15 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3588 6uA/10ADC
+     CCS811: eco2=415 ppm,  tvoc=2 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3640 6uA/10ADC
+     CCS811: eco2=709 ppm,  tvoc=47 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3506 6uA/10ADC
+     CCS811: eco2=418 ppm,  tvoc=2 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3638 6uA/10ADC
+     CCS811: eco2=400 ppm,  tvoc=0 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=2464 6uA/10ADC
+     CCS811: eco2=400 ppm,  tvoc=0 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=2480 6uA/10ADC
+     CCS811: eco2=404 ppm,  tvoc=0 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=2486 6uA/10ADC
      ```
-
-## Clock stretching
-I2C _slave_ devices, such as the iAQcore, are controlled by I2C _masters_, such as the ESP8266, pro mini or nano.
-The master is in charge of the communication to the slave: it toggles the clock line (SCL) high and low.
-Each clock pulse one bit is transferred between the master and the slave (from or to).
-If the slave is not yet ready, it may _stretch the clock_, i.e. force it low, so that the master can not complete the pulse.
-
-The figure below shows that after the master has send the address byte of the iAQcore, this iAQcore chip
-stretches the SCL line for 306.8 us. 
-
-![Clock stretching](iaqcore-clock-stretch.png)
-
-Unfortunately, the ESP8266 I2C library has a clock stretch timeout of 230us.
-So, this timeout must be set to a higher value: `Wire.setClockStretchLimit(1000)`.
 
 (end of doc)
