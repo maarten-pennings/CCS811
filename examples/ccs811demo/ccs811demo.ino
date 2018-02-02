@@ -61,7 +61,7 @@ void loop() {
   Serial.print("CCS811: ");
   Serial.print("eco2=");    Serial.print(eco2);        Serial.print(" ppm,  ");
   Serial.print("tvoc=");    Serial.print(etvoc);       Serial.print(" ppb,  ");
-  Serial.print("errstat="); Serial.print(errstat,HEX); Serial.print(ccs811.errstat_str(errstat)); Serial.print( ccs811.errstat_ok(errstat) ? "=VALID&NEW,  " : "=ERROR|OLD,  " );
+  Serial.print("errstat="); Serial.print(errstat,HEX); Serial.print("="); Serial.print(ccs811.errstat_str(errstat)); Serial.print( ccs811.errstat_ok(errstat) ? "=VALID&NEW,  " : "=ERROR|OLD,  " );
   Serial.print("raw=");     Serial.print(raw);         Serial.print(" 6uA/10ADC");
   Serial.println();
 
