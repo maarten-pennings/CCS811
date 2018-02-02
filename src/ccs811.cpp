@@ -9,8 +9,11 @@
 #include "ccs811.h"
 
 
-// The CCS811 needs a wait between write and read
-#define CCS811_REPEATEDSTART_WAIT() delayMicroseconds(100)
+// Timings
+#define CCS811_WAIT_AFTER_RESET_US     2000 // The CCS811 needs a wait after reset
+#define CCS811_WAIT_AFTER_APPSTART_US  1000 // The CCS811 needs a wait after app start
+#define CCS811_WAIT_AFTER_WAKE_US        50 // The CCS811 needs a wait after WAKE signal
+#define CCS811_WAIT_REPSTART_US         100 // The CCS811 needs a wait between write and read I2C segment
 
 
 // Main interface =====================================================================================================
@@ -51,11 +54,11 @@ bool CCS811::begin( void ) {
   bool ok;
   wake_up();
   ok= i2cwrite4(CCS811_SW_RESET, 0x11E5728A); if( !ok ) { Serial.println("ccs811: begin: reset failed"); return false; }
-  delayMicroseconds(1000);
+  delayMicroseconds(CCS811_WAIT_AFTER_RESET_US);
   ok= i2cread1(CCS811_STATUS, &status);       if( !ok ) { Serial.println("ccs811: begin: STATUS read (boot mode) failed"); return false; }
   if( status!=0x10 )                                    { Serial.println("ccs811: begin: Not in boot mode, or no valid app"); return false; }   
   ok= i2cwrite0(CCS811_APP_START);            if( !ok ) { Serial.println("ccs811: begin: Goto app mode failed"); return false; } 
-  delayMicroseconds(100);
+  delayMicroseconds(CCS811_WAIT_AFTER_APPSTART_US);
   ok= i2cread1(CCS811_STATUS, &status);       if( !ok ) { Serial.println("ccs811: begin: STATUS read (app mode) failed"); return false; }
   if( status!=0x90 )                                    { Serial.println("ccs811: begin: Not in app mode, or no valid app"); return false; }  
   ok= i2cread1(CCS811_HW_ID, &hw_id);         if( !ok ) { Serial.println("ccs811: begin: HW_ID read failed"); return false; } 
@@ -152,7 +155,7 @@ void CCS811::wake_init( void ) {
 }
 
 void CCS811::wake_up( void) {
-  if( _nwake>=0 ) { digitalWrite(_nwake, LOW); delayMicroseconds(50);  }
+  if( _nwake>=0 ) { digitalWrite(_nwake, LOW); delayMicroseconds(CCS811_WAIT_AFTER_WAKE_US);  }
 }
 
 void CCS811::wake_down( void) {
@@ -211,7 +214,7 @@ bool CCS811::i2cread1(int regaddr, uint8_t * regval) {
   Wire.beginTransmission(_slaveaddr);                            // START, SLAVEADDR
   Wire.write(regaddr);                                           // Register address
   int wres= Wire.endTransmission(false);                         // Repeated START
-  CCS811_REPEATEDSTART_WAIT();                                   // Wait 
+  delayMicroseconds(CCS811_WAIT_REPSTART_US);                    // Wait
   int rres=Wire.requestFrom((uint8_t)_slaveaddr,(size_t)1,true); // From CCS811, read bytes, STOP
   uint8_t byte0= Wire.read();
   *regval= (byte0<<0); 
@@ -224,7 +227,7 @@ bool CCS811::i2cread2(int regaddr, uint16_t * regval) {
   Wire.beginTransmission(_slaveaddr);                            // START, SLAVEADDR
   Wire.write(regaddr);                                           // Register address
   int wres= Wire.endTransmission(false);                         // Repeated START
-  CCS811_REPEATEDSTART_WAIT();                                   // Wait 
+  delayMicroseconds(CCS811_WAIT_REPSTART_US);                    // Wait
   int rres=Wire.requestFrom((uint8_t)_slaveaddr,(size_t)2,true); // From CCS811, read bytes, STOP
   uint8_t byte0= Wire.read();
   uint8_t byte1= Wire.read();
@@ -238,7 +241,7 @@ bool CCS811::i2cread4(int regaddr, uint32_t * regval) {
   Wire.beginTransmission(_slaveaddr);                            // START, SLAVEADDR
   Wire.write(regaddr);                                           // Register address
   int wres= Wire.endTransmission(false);                         // Repeated START
-  CCS811_REPEATEDSTART_WAIT();                                   // Wait 
+  delayMicroseconds(CCS811_WAIT_REPSTART_US);                    // Wait
   int rres=Wire.requestFrom((uint8_t)_slaveaddr,(size_t)4,true); // From CCS811, read bytes, STOP
   uint8_t byte0= Wire.read();
   uint8_t byte1= Wire.read();
@@ -254,7 +257,7 @@ bool CCS811::i2cread8(int regaddr, uint32_t * msb, uint32 * lsb) {
   Wire.beginTransmission(_slaveaddr);                            // START, SLAVEADDR
   Wire.write(regaddr);                                           // Register address
   int wres= Wire.endTransmission(false);                         // Repeated START
-  CCS811_REPEATEDSTART_WAIT();                                   // Wait 
+  delayMicroseconds(CCS811_WAIT_REPSTART_US);                    // Wait
   int rres=Wire.requestFrom((uint8_t)_slaveaddr,(size_t)8,true); // From CCS811, read bytes, STOP
   uint32_t byte0= Wire.read();
   uint32_t byte1= Wire.read();
