@@ -9,6 +9,21 @@
 
 CCS811 ccs811(D3);
 
+void print_versions() {
+  uint8_t hw_version;
+  uint16_t fw_boot_version;
+  uint16_t fw_app_version;
+  bool ok= ccs811.versions(&hw_version, &fw_boot_version, &fw_app_version);
+  if( ok ) {
+    Serial.print("versions: "); 
+    Serial.print("hw "); Serial.print(hw_version,HEX);
+    Serial.print(", fw_boot "); Serial.print(fw_boot_version,HEX); 
+    Serial.print(", fw_app "); Serial.print(fw_app_version,HEX);
+    Serial.println("");
+  } else {
+    Serial.println("versions: failed");
+  }
+}
 
 void setup() {
   // Enable serial
@@ -25,6 +40,9 @@ void setup() {
   Serial.println(ok?"init: CCS811 up":"init: CCS811 begin ERROR");
   ok= ccs811.start(CCS811_MODE_1SEC);
   Serial.println(ok?"init: CCS811 started":"init: start ERROR");
+
+  // Check version
+  print_versions();
 }
 
 void loop() {

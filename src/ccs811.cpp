@@ -65,6 +65,24 @@ bool CCS811::begin( void ) {
 }
 
 
+// Get Hardware Version, FW_Boot_Version, FW_App_Version
+bool CCS811::versions(uint8_t*hw, uint16_t*fw_boot, uint16_t*fw_app) {
+  bool ok= true;
+  wake_up();
+  if( ok && hw!=0 ) {
+      ok= i2cread1(CCS811_HW_VERSION,hw);            
+  }
+  if( ok && fw_boot!=0 ) {
+      ok= i2cread2(CCS811_FW_BOOT_VERSION,fw_boot);  
+  }
+  if( ok && fw_app!=0 ) {
+      ok= i2cread2(CCS811_FW_APP_VERSION,fw_app);    
+  }
+  wake_down();
+  return ok;
+}
+
+
 // Switched CCS811 to `mode`, use constants CCS811_MODE_XXX. Returns false on problems.
 bool CCS811::start( int mode ) {
   wake_up();
@@ -148,8 +166,8 @@ void CCS811::wake_down( void) {
 // Writes nothing to register at address `regaddr` in the CCS811. Returns false on I2C problems.
 bool CCS811::i2cwrite0(int regaddr) {
   Wire.beginTransmission(_slaveaddr);       // START, SLAVEADDR
-  Wire.write(regaddr);                     // Register address
-  int r= Wire.endTransmission(true);       // STOP
+  Wire.write(regaddr);                      // Register address
+  int r= Wire.endTransmission(true);        // STOP
   //Serial.printf("ccs811: write0: %02x (%d)\n",regaddr,r);
   return r==0;
 }
@@ -157,9 +175,9 @@ bool CCS811::i2cwrite0(int regaddr) {
 // Writes 8bit `regval` to register at address `regaddr` in the CCS811. Returns false on I2C problems.
 bool CCS811::i2cwrite1(int regaddr, uint8_t regval) {
   Wire.beginTransmission(_slaveaddr);       // START, SLAVEADDR
-  Wire.write(regaddr);                     // Register address
-  Wire.write(regval);                      // New register value
-  int r= Wire.endTransmission(true);       // STOP
+  Wire.write(regaddr);                      // Register address
+  Wire.write(regval);                       // New register value
+  int r= Wire.endTransmission(true);        // STOP
   //Serial.printf("ccs811: write1: %02x <- %02x (%d)\n",regaddr,regval,r);
   return r==0;
 }
@@ -167,10 +185,10 @@ bool CCS811::i2cwrite1(int regaddr, uint8_t regval) {
 // Writes 16bit `regval` to register at address `regaddr` in the CCS811. Returns false on I2C problems.
 bool CCS811::i2cwrite2(int regaddr, uint16_t regval) {
   Wire.beginTransmission(_slaveaddr);       // START, SLAVEADDR
-  Wire.write(regaddr);                     // Register address
-  Wire.write((regval>>8)&0xFF);            // New register value MSB
-  Wire.write((regval>>0)&0xFF);            // New register value LSB
-  int r= Wire.endTransmission(true);       // STOP
+  Wire.write(regaddr);                      // Register address
+  Wire.write((regval>>8)&0xFF);             // New register value MSB
+  Wire.write((regval>>0)&0xFF);             // New register value LSB
+  int r= Wire.endTransmission(true);        // STOP
   //Serial.printf("ccs811: write2: %02x <- %04x (%d)\n",regaddr,regval,r);
   return r==0;
 }
@@ -178,12 +196,12 @@ bool CCS811::i2cwrite2(int regaddr, uint16_t regval) {
 // Writes 32bit `regval` to register at address `regaddr` in the CCS811. Returns false on I2C problems.
 bool CCS811::i2cwrite4(int regaddr, uint32_t regval) {
   Wire.beginTransmission(_slaveaddr);       // START, SLAVEADDR
-  Wire.write(regaddr);                     // Register address
-  Wire.write((regval>>24)&0xFF);           // New register value MSB
-  Wire.write((regval>>16)&0xFF);           // New register value 
-  Wire.write((regval>>8)&0xFF);            // New register value 
-  Wire.write((regval>>0)&0xFF);            // New register value LSB
-  int r= Wire.endTransmission(true);       // STOP
+  Wire.write(regaddr);                      // Register address
+  Wire.write((regval>>24)&0xFF);            // New register value MSB
+  Wire.write((regval>>16)&0xFF);            // New register value 
+  Wire.write((regval>>8)&0xFF);             // New register value 
+  Wire.write((regval>>0)&0xFF);             // New register value LSB
+  int r= Wire.endTransmission(true);        // STOP
   //Serial.printf("ccs811: write4: %02x <- %08x (%d)\n",regaddr,regval,r);
   return r==0;
 }
@@ -191,9 +209,9 @@ bool CCS811::i2cwrite4(int regaddr, uint32_t regval) {
 // Reads 1 byte from register at address `regaddr`, and store it in `regval`. Returns false on I2C problems.
 bool CCS811::i2cread1(int regaddr, uint8_t * regval) {
   Wire.beginTransmission(_slaveaddr);                            // START, SLAVEADDR
-  Wire.write(regaddr);                                          // Register address
-  int wres= Wire.endTransmission(false);                        // Repeated START
-  CCS811_REPEATEDSTART_WAIT();                                  // Wait 
+  Wire.write(regaddr);                                           // Register address
+  int wres= Wire.endTransmission(false);                         // Repeated START
+  CCS811_REPEATEDSTART_WAIT();                                   // Wait 
   int rres=Wire.requestFrom((uint8_t)_slaveaddr,(size_t)1,true); // From CCS811, read bytes, STOP
   uint8_t byte0= Wire.read();
   *regval= (byte0<<0); 
@@ -204,9 +222,9 @@ bool CCS811::i2cread1(int regaddr, uint8_t * regval) {
 // Reads 2 bytes from register at address `regaddr`, and stores them in `regval`. Returns false on I2C problems.
 bool CCS811::i2cread2(int regaddr, uint16_t * regval) {
   Wire.beginTransmission(_slaveaddr);                            // START, SLAVEADDR
-  Wire.write(regaddr);                                          // Register address
-  int wres= Wire.endTransmission(false);                        // Repeated START
-  CCS811_REPEATEDSTART_WAIT();                                  // Wait 
+  Wire.write(regaddr);                                           // Register address
+  int wres= Wire.endTransmission(false);                         // Repeated START
+  CCS811_REPEATEDSTART_WAIT();                                   // Wait 
   int rres=Wire.requestFrom((uint8_t)_slaveaddr,(size_t)2,true); // From CCS811, read bytes, STOP
   uint8_t byte0= Wire.read();
   uint8_t byte1= Wire.read();
@@ -218,9 +236,9 @@ bool CCS811::i2cread2(int regaddr, uint16_t * regval) {
 // Reads 4 bytes from register at address `regaddr`, and stores them in `regval`. Returns false on I2C problems.
 bool CCS811::i2cread4(int regaddr, uint32_t * regval) {
   Wire.beginTransmission(_slaveaddr);                            // START, SLAVEADDR
-  Wire.write(regaddr);                                          // Register address
-  int wres= Wire.endTransmission(false);                        // Repeated START
-  CCS811_REPEATEDSTART_WAIT();                                  // Wait 
+  Wire.write(regaddr);                                           // Register address
+  int wres= Wire.endTransmission(false);                         // Repeated START
+  CCS811_REPEATEDSTART_WAIT();                                   // Wait 
   int rres=Wire.requestFrom((uint8_t)_slaveaddr,(size_t)4,true); // From CCS811, read bytes, STOP
   uint8_t byte0= Wire.read();
   uint8_t byte1= Wire.read();
@@ -234,9 +252,9 @@ bool CCS811::i2cread4(int regaddr, uint32_t * regval) {
 // Reads 8 bytes from register at address `regaddr`, and stores them in `regval`. Returns false on I2C problems.
 bool CCS811::i2cread8(int regaddr, uint32_t * msb, uint32 * lsb) {
   Wire.beginTransmission(_slaveaddr);                            // START, SLAVEADDR
-  Wire.write(regaddr);                                          // Register address
-  int wres= Wire.endTransmission(false);                        // Repeated START
-  CCS811_REPEATEDSTART_WAIT();                                  // Wait 
+  Wire.write(regaddr);                                           // Register address
+  int wres= Wire.endTransmission(false);                         // Repeated START
+  CCS811_REPEATEDSTART_WAIT();                                   // Wait 
   int rres=Wire.requestFrom((uint8_t)_slaveaddr,(size_t)8,true); // From CCS811, read bytes, STOP
   uint32_t byte0= Wire.read();
   uint32_t byte1= Wire.read();

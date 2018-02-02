@@ -39,6 +39,7 @@ class CCS811 {
   public: // Main interface
     CCS811(int nwake=-1, int slaveaddr=CCS811_SLAVADDR_0);                    // Pin number connected to nWAKE (nWAKE can also be bound to GND, then pass -1), slave address (5A or 5B)
     bool begin( void );                                                       // Reset the CCS811, switch to app mode and check HW_ID. Returns false on problems.
+    bool versions(uint8_t*hw, uint16_t*fw_boot, uint16_t*fw_app);             // Get Hardware Version, FW_Boot_Version, FW_App_Version
     bool start( int mode );                                                   // Switched CCS811 to `mode`, use constants CCS811_MODE_XXX. Returns false on I2C problems.
     void read( uint16_t*eco2, uint16_t*etvoc, uint16_t*errstat,uint16_t*raw); // Get measurement results from the CCS811, check status via errstat, e.g. ccs811_errstat(errstat)
     bool errstat_ok(int errstat );                                            // Returns true if errstat flags denote NEW&READY, false for OLD|ERROR
