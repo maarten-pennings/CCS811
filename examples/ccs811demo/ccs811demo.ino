@@ -38,11 +38,11 @@ void setup() {
   // Enable CCS811
   bool ok= ccs811.begin();
   Serial.println(ok?"init: CCS811 up":"init: CCS811 begin ERROR");
+  // Print versions
+  print_versions();
+  // Start measuring
   ok= ccs811.start(CCS811_MODE_1SEC);
   Serial.println(ok?"init: CCS811 started":"init: start ERROR");
-
-  // Check version
-  print_versions();
 }
 
 void loop() {
