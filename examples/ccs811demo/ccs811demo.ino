@@ -55,16 +55,20 @@ void loop() {
   uint16_t errstat;
   uint16_t raw;
   ccs811.read(&eco2,&etvoc,&errstat,&raw); // Note, I2C errors are also in errstat
+
+  // Check if errstat flags denote VALID&NEW or OLD|ERROR
+  bool valid_and_new = ( (errstat&CCS811_ERRSTAT_OKS) == CCS811_ERRSTAT_OKS )  &&  ( (errstat&CCS811_ERRSTAT_ERRORS)==0 );
   
   // Print
   Serial.print("CCS811: ");
   Serial.print("eco2=");    Serial.print(eco2);        Serial.print(" ppm,  ");
-  Serial.print("tvoc=");    Serial.print(etvoc);       Serial.print(" ppb,  ");
-  Serial.print("errstat="); Serial.print(errstat,HEX); Serial.print("="); Serial.print(ccs811.errstat_str(errstat)); Serial.print( ccs811.errstat_ok(errstat) ? "=VALID&NEW,  " : "=ERROR|OLD,  " );
+  Serial.print("etvoc=");   Serial.print(etvoc);       Serial.print(" ppb,  ");
+  Serial.print("errstat="); Serial.print(errstat,HEX); Serial.print("="); Serial.print(ccs811.errstat_str(errstat)); Serial.print( valid_and_new ? "=valid&new,  " : "=ERROR|OLD,  " );
   Serial.print("raw6=");    Serial.print(raw/1024);    Serial.print(" uA, "); 
   Serial.print("raw10=");   Serial.print(raw%1024);    Serial.print(" ADC");
   Serial.println();
+  
 
   // Wait
-  delay(5000); 
+  delay(1500); 
 }

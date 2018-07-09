@@ -34,6 +34,10 @@
 #define CCS811_ERRSTAT_HEATER_FAULT        0x1000 // The Heater current in the CCS811 is not in range
 #define CCS811_ERRSTAT_HEATER_SUPPLY       0x2000 // The Heater voltage is not being applied correctly
 
+#define CCS811_ERRSTAT_HWERRORS            ( CCS811_ERRSTAT_ERROR | CCS811_ERRSTAT_WRITE_REG_INVALID | CCS811_ERRSTAT_READ_REG_INVALID | CCS811_ERRSTAT_MEASMODE_INVALID | CCS811_ERRSTAT_MAX_RESISTANCE | CCS811_ERRSTAT_HEATER_FAULT | CCS811_ERRSTAT_HEATER_SUPPLY )
+#define CCS811_ERRSTAT_ERRORS              ( CCS811_ERRSTAT_I2CFAIL | CCS811_ERRSTAT_HWERRORS )
+#define CCS811_ERRSTAT_OKS                 ( CCS811_ERRSTAT_DATA_READY | CCS811_ERRSTAT_APP_VALID | CCS811_ERRSTAT_FW_MODE )
+
 
 class CCS811 {
   public: // Main interface
@@ -42,7 +46,6 @@ class CCS811 {
     bool versions(uint8_t*hw, uint16_t*fw_boot, uint16_t*fw_app);             // Get Hardware Version, FW_Boot_Version, FW_App_Version
     bool start( int mode );                                                   // Switched CCS811 to `mode`, use constants CCS811_MODE_XXX. Returns false on I2C problems.
     void read( uint16_t*eco2, uint16_t*etvoc, uint16_t*errstat,uint16_t*raw); // Get measurement results from the CCS811, check status via errstat, e.g. ccs811_errstat(errstat)
-    bool errstat_ok(int errstat );                                            // Returns true if errstat flags denote NEW&READY, false for OLD|ERROR
     const char * errstat_str(uint16_t errstat);                               // Returns a string version of an errstat. Note, each call, this string is updated.
   protected: // Helper interface: nwake pin
     void wake_init( void );                                                   // Initialize nwake pin

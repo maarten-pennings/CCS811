@@ -104,25 +104,18 @@ void CCS811::read( uint16_t*eco2, uint16_t*etvoc, uint16_t*errstat,uint16_t*raw)
   // Status and error management
   uint8_t error_id= ((lsb>>16) & 0xFF);
   uint8_t status  = ((lsb>>24) & 0xFF);
-  if( !ok ) status |= CCS811_ERRSTAT_I2CFAIL;
+  uint16_t combined = (error_id<<8) | (status<<0);
+  if( combined & ~(CCS811_ERRSTAT_HWERRORS|CCS811_ERRSTAT_OKS) ) ok= false; // Unused bits are 1: I2C transfer error
+  combined &= CCS811_ERRSTAT_HWERRORS|CCS811_ERRSTAT_OKS; // Clear all unused bits
+  if( !ok ) combined |= CCS811_ERRSTAT_I2CFAIL;
   // Outputs
   if( eco2   ) *eco2   = (msb>>16) & 0xFFFF;
   if( etvoc  ) *etvoc  = (msb>>0) & 0xFFFF;
-  if( errstat) *errstat= (error_id<<8) | (status<<0);
+  if( errstat) *errstat= combined;
   if( raw    ) *raw    = (lsb>> 0) & 0xFFFF;
 }
 
 
-// Returns true if errstat flags denote NEW&READY, false for OLD|ERROR
-bool CCS811::errstat_ok(int errstat ) {
-  uint16_t zeros = CCS811_ERRSTAT_ERROR | CCS811_ERRSTAT_I2CFAIL 
-                 | CCS811_ERRSTAT_WRITE_REG_INVALID | CCS811_ERRSTAT_READ_REG_INVALID | CCS811_ERRSTAT_MEASMODE_INVALID 
-                 | CCS811_ERRSTAT_MAX_RESISTANCE | CCS811_ERRSTAT_HEATER_FAULT | CCS811_ERRSTAT_HEATER_SUPPLY ;
-  uint16_t ones  = CCS811_ERRSTAT_DATA_READY | CCS811_ERRSTAT_APP_VALID | CCS811_ERRSTAT_FW_MODE;
-  return ( (errstat&ones)==ones ) &&  ( (errstat&zeros)==0 );
-}
-
-                                         
 // Returns a string version of an errstat. Note, each call, this string is updated.
 const char * CCS811::errstat_str(uint16_t errstat) {
   static char s[17]; // 16 bits plus terminating zero
