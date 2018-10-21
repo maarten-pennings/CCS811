@@ -96,43 +96,39 @@ Connect the CCS811 module as follows
 ## Flash an example
 To build an example sketch
  - (Re)start Arduino.
- - Open File > Example > Examples from Custom Libraries > CCS811 > CCS811demo.
- - In `setup()` make sure to start the I2C driver correctly.
-   For example, for ESP8266 NodeMCU have
-     ```C++
-     // Enable I2C for ESP8266 NodeMCU boards [VDD to 3V3, GND to GND, SDA to D2, SCL to D1]
-     Wire.begin(D2,D1); 
-     Wire.setClockStretchLimit(1000); 
-     ```
-   and for Arduino pro mini or Nano have
-     ```C++
-     // Enable I2C for Arduino pro mini or Nano [VDD to VCC/3V3, GND to GND, SDA to A4, SCL to A5]
-     Wire.begin(); 
-     ```
+ - Open File > Example > Examples from Custom Libraries > CCS811 > CCS811basic.
  - Make sure Tools > Board lists the correct board.
  - Select Sketch > Upload.
  - Select Tools > Serial Monitor.
- - Enjoy the output, which should be like this for `CCS811demo`:
+ - Enjoy the output, which should be like this for `CCS811basic`:
 
      ```Text
-     Starting CCS811 simple demo
-     init: I2C up
-     init: CCS811 up
-     init: CCS811 started
-     CCS811: eco2=65021 ppm,  tvoc=65021 ppb,  errstat=0--vhxmrwf--ad-ie=ERROR|OLD,  raw=0 6uA/10ADC
-     CCS811: eco2=400 ppm,  tvoc=0 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3649 6uA/10ADC
-     CCS811: eco2=400 ppm,  tvoc=0 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3651 6uA/10ADC
-     CCS811: eco2=406 ppm,  tvoc=0 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3649 6uA/10ADC
-     CCS811: eco2=410 ppm,  tvoc=1 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3647 6uA/10ADC
-     CCS811: eco2=414 ppm,  tvoc=2 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3646 6uA/10ADC
-     CCS811: eco2=679 ppm,  tvoc=42 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3516 6uA/10ADC
-     CCS811: eco2=501 ppm,  tvoc=15 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3588 6uA/10ADC
-     CCS811: eco2=415 ppm,  tvoc=2 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3640 6uA/10ADC
-     CCS811: eco2=709 ppm,  tvoc=47 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3506 6uA/10ADC
-     CCS811: eco2=418 ppm,  tvoc=2 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=3638 6uA/10ADC
-     CCS811: eco2=400 ppm,  tvoc=0 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=2464 6uA/10ADC
-     CCS811: eco2=400 ppm,  tvoc=0 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=2480 6uA/10ADC
-     CCS811: eco2=404 ppm,  tvoc=0 ppb,  errstat=98--vhxmrwF--AD-ie=VALID&NEW,  raw=2486 6uA/10ADC
+     Starting CCS811 basic demo
+     init: bootloader  version: 1000
+     init: application version: 1100
+     CCS811: eco2=65021 ppm,  etvoc=65021 ppb,  errstat=0=--vhxmrwf--ad-ie=ERROR|OLD,  raw6=0 uA,  raw10=0 ADC
+     CCS811: eco2=0 ppm,  etvoc=0 ppb,  errstat=90=--vhxmrwF--Ad-ie=ERROR|OLD,  raw6=2 uA,  raw10=454 ADC
+     CCS811: eco2=0 ppm,  etvoc=0 ppb,  errstat=90=--vhxmrwF--Ad-ie=ERROR|OLD,  raw6=2 uA,  raw10=454 ADC
+     CCS811: eco2=400 ppm,  etvoc=0 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=453 ADC
+     CCS811: eco2=409 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=452 ADC
+     CCS811: eco2=409 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=452 ADC
+     CCS811: eco2=411 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=452 ADC
+     CCS811: eco2=405 ppm,  etvoc=0 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=455 ADC
+     CCS811: eco2=403 ppm,  etvoc=0 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=456 ADC
+     CCS811: eco2=403 ppm,  etvoc=0 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=456 ADC
+     CCS811: eco2=403 ppm,  etvoc=0 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=456 ADC
+     CCS811: eco2=407 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=456 ADC
+     CCS811: eco2=407 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=456 ADC
+     CCS811: eco2=407 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=456 ADC
+     CCS811: eco2=407 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=456 ADC
+     CCS811: eco2=411 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=455 ADC
+     CCS811: eco2=407 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=456 ADC
+     CCS811: eco2=411 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=455 ADC
+     CCS811: eco2=407 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=456 ADC
+     CCS811: eco2=414 ppm,  etvoc=2 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=454 ADC
+     CCS811: eco2=407 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=456 ADC
+     CCS811: eco2=407 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=456 ADC
+     CCS811: eco2=407 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=456 ADC
      ```
 
 (end of doc)
