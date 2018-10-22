@@ -1,5 +1,6 @@
-/* 
+/*
   ccs811.cpp - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2018 Oct 21  v3  Maarten Pennings  Fixed bug in begin(), added hw-version
   2018 Oct 21  v2  Maarten Pennings  Simplified I2C, added version mngt
   2017 Dec 11  v1  Maarten Pennings  Created
 */
@@ -8,6 +9,12 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include "ccs811.h"
+
+
+// begin() prints errors to help diagnose startup problems.
+// Change these macro's to empty to suppress those prints.
+#define PRINTLN Serial.println
+#define PRINT   Serial.print
 
 
 // Timings
@@ -21,18 +28,18 @@
 
 
 // CCS811 registers/mailboxes, all 1 byte except when stated otherwise
-#define CCS811_STATUS           0x00 
-#define CCS811_MEAS_MODE        0x01 
+#define CCS811_STATUS           0x00
+#define CCS811_MEAS_MODE        0x01
 #define CCS811_ALG_RESULT_DATA  0x02 // up to 8 bytes
 #define CCS811_RAW_DATA         0x03 // 2 bytes
 #define CCS811_ENV_DATA         0x05 // 4 bytes
 #define CCS811_THRESHOLDS       0x10 // 5 bytes
 #define CCS811_BASELINE         0x11 // 2 bytes
-#define CCS811_HW_ID            0x20 
+#define CCS811_HW_ID            0x20
 #define CCS811_HW_VERSION       0x21
 #define CCS811_FW_BOOT_VERSION  0x23 // 2 bytes
 #define CCS811_FW_APP_VERSION   0x24 // 2 bytes
-#define CCS811_ERROR_ID         0xE0 
+#define CCS811_ERROR_ID         0xE0
 #define CCS811_APP_ERASE        0xF1 // 4 bytes
 #define CCS811_APP_DATA         0xF2 // 9 bytes
 #define CCS811_APP_VERIFY       0xF3 // 0 bytes
@@ -56,21 +63,98 @@ bool CCS811::begin( void ) {
   uint8_t hw_version;
   uint8_t status;
   bool ok;
+
+  // Wakeup CCS811
   wake_up();
-  ok= i2cwrite(CCS811_SW_RESET, 4,sw_reset);   if( !ok ) { Serial.println("ccs811: begin: reset failed"); return false; }
-  delayMicroseconds(CCS811_WAIT_AFTER_RESET_US);
-  ok= i2cread(CCS811_STATUS,1,&status);        if( !ok ) { Serial.println("ccs811: begin: STATUS read (boot mode) failed"); return false; }
-  if( status!=0x10 )                                     { Serial.print  ("ccs811: begin: Not in boot mode, or no valid app: "); Serial.println(status,HEX); return false; }   
-  ok= i2cwrite(CCS811_APP_START,0,app_start);  if( !ok ) { Serial.println("ccs811: begin: Goto app mode failed"); return false; } 
-  delayMicroseconds(CCS811_WAIT_AFTER_APPSTART_US);
-  ok= i2cread(CCS811_STATUS,1,&status);        if( !ok ) { Serial.println("ccs811: begin: STATUS read (app mode) failed"); return false; }
-  if( status!=0x90 )                                     { Serial.print  ("ccs811: begin: Not in app mode, or no valid app: ");  Serial.println(status,HEX); return false; }  
-  ok= i2cread(CCS811_HW_ID,1,&hw_id);          if( !ok ) { Serial.println("ccs811: begin: HW_ID read failed"); return false; } 
-  if( hw_id!=0x81 )                                      { Serial.print  ("ccs811: begin: Wrong HW_ID: ");  Serial.println(hw_id,HEX); return false; }
-  ok= i2cread(CCS811_HW_VERSION,1,&hw_version);if( !ok ) { Serial.println("ccs811: begin: HW_VERSION read failed"); return false; } 
-  if( hw_version&0xF0!=0x10 )                            { Serial.print  ("ccs811: begin: Wrong HW_VERSION: ");  Serial.println(hw_version,HEX); return false; }
+
+    // Try to ping CCS811 (can we reach CCS811 via I2C?)
+    ok= i2cwrite(0,0,0);
+    if( !ok ) {
+      // Try the other slave address
+      _slaveaddr= CCS811_SLAVEADDR_0 + CCS811_SLAVEADDR_1 - _slaveaddr; // swap address
+      ok= i2cwrite(0,0,0);
+      _slaveaddr= CCS811_SLAVEADDR_0 + CCS811_SLAVEADDR_1 - _slaveaddr; // swap back
+      if( ok )
+        PRINTLN("ccs811: begin: wrong slave address, ping successful on other address");
+      else
+        PRINTLN("ccs811: begin: ping failed (VDD/GNF connected? SDA/SCL connected?)");
+      goto abort_begin;
+    }
+
+    // Invoke a SW reset (bring CCS811 in a know state)
+    ok= i2cwrite(CCS811_SW_RESET,4,sw_reset);
+    if( !ok ) {
+      PRINTLN("ccs811: begin: reset failed");
+      goto abort_begin;
+    }
+    delayMicroseconds(CCS811_WAIT_AFTER_RESET_US);
+
+    // Check that HW_ID is 0x81
+    ok= i2cread(CCS811_HW_ID,1,&hw_id);
+    if( !ok ) {
+      PRINTLN("ccs811: begin: HW_ID read failed");
+      goto abort_begin;
+    }
+    if( hw_id!=0x81 ) {
+      PRINT("ccs811: begin: Wrong HW_ID: ");
+      PRINTLN(hw_id,HEX);
+      goto abort_begin;
+    }
+
+    // Check that HW_VERSION is 0x1X
+    ok= i2cread(CCS811_HW_VERSION,1,&hw_version);
+    if( !ok ) {
+      PRINTLN("ccs811: begin: HW_VERSION read failed");
+      goto abort_begin;
+    }
+    if( hw_version&0xF0!=0x10 ) {
+      PRINT("ccs811: begin: Wrong HW_VERSION: ");
+      PRINTLN(hw_version,HEX);
+      goto abort_begin;
+    }
+
+    // Check status (after reset, CCS811 should be in boot mode with valid app)
+    ok= i2cread(CCS811_STATUS,1,&status);
+    if( !ok ) {
+      PRINTLN("ccs811: begin: STATUS read (boot mode) failed");
+      goto abort_begin;
+    }
+    if( status!=0x10 ) {
+      PRINT("ccs811: begin: Not in boot mode, or no valid app: ");
+      PRINTLN(status,HEX);
+      goto abort_begin;
+    }
+
+    // Switch CCS811 from boot mode into app mode
+    ok= i2cwrite(CCS811_APP_START,0,app_start);
+    if( !ok ) {
+      PRINTLN("ccs811: begin: Goto app mode failed");
+      goto abort_begin;
+    }
+    delayMicroseconds(CCS811_WAIT_AFTER_APPSTART_US);
+
+    // Check if the switch was successful
+    ok= i2cread(CCS811_STATUS,1,&status);
+    if( !ok ) {
+      PRINTLN("ccs811: begin: STATUS read (app mode) failed");
+      goto abort_begin;
+    }
+    if( status!=0x90 ) {
+      PRINT("ccs811: begin: Not in app mode, or no valid app: ");
+      PRINTLN(status,HEX);
+      goto abort_begin;
+    }
+
+  // CCS811 back to sleep
   wake_down();
+  // Return success
   return true;
+
+abort_begin:
+  // CCS811 back to sleep
+  wake_down();
+  // Return failure
+  return false;
 }
 
 
@@ -98,7 +182,7 @@ void CCS811::read( uint16_t*eco2, uint16_t*etvoc, uint16_t*errstat,uint16_t*raw)
   // Outputs
   if( eco2   ) *eco2   = buf[0]*256+buf[1];
   if( etvoc  ) *etvoc  = buf[2]*256+buf[3];
-  if( errstat) *errstat= combined; 
+  if( errstat) *errstat= combined;
   if( raw    ) *raw    = buf[6]*256+buf[7];;
 }
 
@@ -106,45 +190,60 @@ void CCS811::read( uint16_t*eco2, uint16_t*etvoc, uint16_t*errstat,uint16_t*raw)
 // Returns a string version of an errstat. Note, each call, this string is updated.
 const char * CCS811::errstat_str(uint16_t errstat) {
   static char s[17]; // 16 bits plus terminating zero
-                                                  s[16]='\0';
-  if( errstat & CCS811_ERRSTAT_ERROR            ) s[15]='E'; else s[15]='e';
-  if( errstat & CCS811_ERRSTAT_I2CFAIL          ) s[14]='I'; else s[14]='i';
-                                                  s[13]='-';
-  if( errstat & CCS811_ERRSTAT_DATA_READY       ) s[12]='D'; else s[12]='d';
-  if( errstat & CCS811_ERRSTAT_APP_VALID        ) s[11]='A'; else s[11]='a';
-                                                  s[10]='-';
-                                                  s[ 9]='-';
-  if( errstat & CCS811_ERRSTAT_FW_MODE          ) s[ 8]='F'; else s[8]='f';
-  if( errstat & CCS811_ERRSTAT_WRITE_REG_INVALID) s[ 7]='W'; else s[7]='w';
-  if( errstat & CCS811_ERRSTAT_READ_REG_INVALID ) s[ 6]='R'; else s[6]='r';
-  if( errstat & CCS811_ERRSTAT_MEASMODE_INVALID ) s[ 5]='M'; else s[5]='m';
-  if( errstat & CCS811_ERRSTAT_MAX_RESISTANCE   ) s[ 4]='X'; else s[4]='x';
-  if( errstat & CCS811_ERRSTAT_HEATER_FAULT     ) s[ 3]='H'; else s[3]='h';
-  if( errstat & CCS811_ERRSTAT_HEATER_SUPPLY    ) s[ 2]='V'; else s[2]='v';
-                                                  s[ 1]='-';
+  // First the ERROR_ID flags
                                                   s[ 0]='-';
+                                                  s[ 1]='-';
+  if( errstat & CCS811_ERRSTAT_HEATER_SUPPLY    ) s[ 2]='V'; else s[2]='v';
+  if( errstat & CCS811_ERRSTAT_HEATER_FAULT     ) s[ 3]='H'; else s[3]='h';
+  if( errstat & CCS811_ERRSTAT_MAX_RESISTANCE   ) s[ 4]='X'; else s[4]='x';
+  if( errstat & CCS811_ERRSTAT_MEASMODE_INVALID ) s[ 5]='M'; else s[5]='m';
+  if( errstat & CCS811_ERRSTAT_READ_REG_INVALID ) s[ 6]='R'; else s[6]='r';
+  if( errstat & CCS811_ERRSTAT_WRITE_REG_INVALID) s[ 7]='W'; else s[7]='w';
+  // Then the STATUS flags
+  if( errstat & CCS811_ERRSTAT_FW_MODE          ) s[ 8]='F'; else s[8]='f';
+                                                  s[ 9]='-';
+                                                  s[10]='-';
+  if( errstat & CCS811_ERRSTAT_APP_VALID        ) s[11]='A'; else s[11]='a';
+  if( errstat & CCS811_ERRSTAT_DATA_READY       ) s[12]='D'; else s[12]='d';
+                                                  s[13]='-';
+  // Next bit is used by SW to signal I2C transfer error
+  if( errstat & CCS811_ERRSTAT_I2CFAIL          ) s[14]='I'; else s[14]='i';
+  if( errstat & CCS811_ERRSTAT_ERROR            ) s[15]='E'; else s[15]='e';
+                                                  s[16]='\0';
   return s;
 }
 
 
-// Gets version of the CCS811 bootloader (returns 0 on I2C failure)
+// Gets version of the CCS811 hardware (returns 0 on I2C failure)
+int CCS811::hardware_version(void) {
+  uint8_t buf[1];
+  wake_up();
+  bool ok = i2cread(CCS811_HW_VERSION,1,buf);
+  wake_down();
+  int version= 0;
+  if( ok ) version= buf[0];
+  return version;
+}
+
+
+// Gets version of the CCS811 boot loader (returns 0 on I2C failure)
 int CCS811::bootloader_version(void) {
   uint8_t buf[2];
   wake_up();
   bool ok = i2cread(CCS811_FW_BOOT_VERSION,2,buf);
-  wake_down();  
+  wake_down();
   int version= 0;
   if( ok ) version= buf[0]*256+buf[1];
   return version;
 }
-    
 
-// Gets version of the CCS811 application (returns 0 on I2C failure)    
+
+// Gets version of the CCS811 application (returns 0 on I2C failure)
 int CCS811::application_version(void) {
   uint8_t buf[2];
   wake_up();
   bool ok = i2cread(CCS811_FW_APP_VERSION,2,buf);
-  wake_down();  
+  wake_down();
   int version= 0;
   if( ok ) version= buf[0]*256+buf[1];
   return version;
@@ -155,7 +254,7 @@ int CCS811::application_version(void) {
 
 
 void CCS811::wake_init( void ) {
-  if( _nwake>=0 ) pinMode(_nwake, OUTPUT);  
+  if( _nwake>=0 ) pinMode(_nwake, OUTPUT);
 }
 
 void CCS811::wake_up( void) {
@@ -170,13 +269,12 @@ void CCS811::wake_down( void) {
 // Helper interface: i2c wrapper ======================================================================================
 
 
-// Writes `count` to register at address `regaddr` in the CCS811. Returns false on I2C problems.
+// Writes `count` from `buf` to register at address `regaddr` in the CCS811. Returns false on I2C problems.
 bool CCS811::i2cwrite(int regaddr, int count, uint8_t * buf) {
   Wire.beginTransmission(_slaveaddr);              // START, SLAVEADDR
   Wire.write(regaddr);                             // Register address
   for( int i=0; i<count; i++) Wire.write(buf[i]);  // Write bytes
   int r= Wire.endTransmission(true);               // STOP
-  //Serial.printf("ccs811: write4: %02x <- %08x (%d)\n",regaddr,regval,r);
   return r==0;
 }
 
