@@ -70,6 +70,7 @@ bool CCS811::begin( void ) {
 
     // Try to ping CCS811 (can we reach CCS811 via I2C?)
     ok= i2cwrite(0,0,0);
+    if( !ok ) ok= i2cwrite(0,0,0); // retry
     if( !ok ) {
       // Try the other slave address
       _slaveaddr= CCS811_SLAVEADDR_0 + CCS811_SLAVEADDR_1 - _slaveaddr; // swap address
