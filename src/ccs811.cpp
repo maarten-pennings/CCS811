@@ -1,5 +1,6 @@
 /*
   ccs811.cpp - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2018 Oct 23  v4  Maarten Pennings  Added envdata/i2cdelay
   2018 Oct 21  v3  Maarten Pennings  Fixed bug in begin(), added hw-version
   2018 Oct 21  v2  Maarten Pennings  Simplified I2C, added version mngt
   2017 Dec 11  v1  Maarten Pennings  Created
@@ -21,7 +22,6 @@
 #define CCS811_WAIT_AFTER_RESET_US     2000 // The CCS811 needs a wait after reset
 #define CCS811_WAIT_AFTER_APPSTART_US  1000 // The CCS811 needs a wait after app start
 #define CCS811_WAIT_AFTER_WAKE_US        50 // The CCS811 needs a wait after WAKE signal
-#define CCS811_WAIT_REPSTART_US         100 // The CCS811 needs a wait between write and read I2C segment
 
 
 // Main interface =====================================================================================================
@@ -51,6 +51,7 @@
 CCS811::CCS811(int nwake, int slaveaddr) {
   _nwake= nwake;
   _slaveaddr= slaveaddr;
+  _i2cdelay_us= 0;
   wake_init();
 }
 
@@ -176,8 +177,8 @@ void CCS811::read( uint16_t*eco2, uint16_t*etvoc, uint16_t*errstat,uint16_t*raw)
   wake_down();
   // Status and error management
   uint16_t combined = buf[5]*256+buf[4];
-  if( combined & ~(CCS811_ERRSTAT_HWERRORS|CCS811_ERRSTAT_NEEDS) ) ok= false; // Unused bits are 1: I2C transfer error
-  combined &= CCS811_ERRSTAT_HWERRORS|CCS811_ERRSTAT_NEEDS; // Clear all unused bits
+  if( combined & ~(CCS811_ERRSTAT_HWERRORS|CCS811_ERRSTAT_OK) ) ok= false; // Unused bits are 1: I2C transfer error
+  combined &= CCS811_ERRSTAT_HWERRORS|CCS811_ERRSTAT_OK; // Clear all unused bits
   if( !ok ) combined |= CCS811_ERRSTAT_I2CFAIL;
   // Outputs
   if( eco2   ) *eco2   = buf[0]*256+buf[1];
@@ -212,6 +213,9 @@ const char * CCS811::errstat_str(uint16_t errstat) {
                                                   s[16]='\0';
   return s;
 }
+
+
+// Extra interface ========================================================================================
 
 
 // Gets version of the CCS811 hardware (returns 0 on I2C failure)
@@ -250,6 +254,42 @@ int CCS811::application_version(void) {
 }
 
 
+// Writes t and h to ENV_DATA (see datasheet for format). Returns false on I2C problems.
+bool CCS811::set_envdata(uint16 t, uint16 h) {
+  uint8_t envdata[]= { (h>>8)&0xff, (h>>0)&0xff, (t>>8)&0xff, (t>>0)&0xff };
+  wake_up();
+  // Serial.print(" [T="); Serial.print(t); Serial.print(" H="); Serial.print(h); Serial.println("] ");
+  bool ok = i2cwrite(CCS811_ENV_DATA,2,envdata);
+  wake_down();
+  return ok;
+}
+
+
+// Writes t and h (in ENS210 format) to ENV_DATA. Returns false on I2C problems.
+bool CCS811::set_envdata210(uint16 t, uint16 h) {
+  uint16_t offset= (273.15-25)*64;
+  if( t<offset ) t=offset;
+  if( t>UINT16_MAX/8+offset ) t= UINT16_MAX/8+offset;
+  return set_envdata( (t-offset)*8 , h);
+}
+ 
+ 
+// Advanced interface: i2cdelay ========================================================================================
+
+
+// Delay before a repeated start - needed for e.g. ESP8266 because it doesn't handle I2C clock stretch correctly
+void CCS811::set_i2cdelay(int us) {
+  if( us<0 ) us=0;
+  _i2cdelay_us= us;
+}
+
+
+// Get current delay
+int  CCS811::get_i2cdelay(void) {
+  return _i2cdelay_us;
+}
+
+
 // Helper interface: nwake pin ========================================================================================
 
 
@@ -257,9 +297,11 @@ void CCS811::wake_init( void ) {
   if( _nwake>=0 ) pinMode(_nwake, OUTPUT);
 }
 
+
 void CCS811::wake_up( void) {
   if( _nwake>=0 ) { digitalWrite(_nwake, LOW); delayMicroseconds(CCS811_WAIT_AFTER_WAKE_US);  }
 }
+
 
 void CCS811::wake_down( void) {
   if( _nwake>=0 ) digitalWrite(_nwake, HIGH);
@@ -283,7 +325,7 @@ bool CCS811::i2cread(int regaddr, int count, uint8_t * buf) {
   Wire.beginTransmission(_slaveaddr);              // START, SLAVEADDR
   Wire.write(regaddr);                             // Register address
   int wres= Wire.endTransmission(false);           // Repeated START
-  delayMicroseconds(CCS811_WAIT_REPSTART_US);      // Wait
+  delayMicroseconds(_i2cdelay_us);                 // Wait
   int rres=Wire.requestFrom(_slaveaddr,count);     // From CCS811, read bytes, STOP
   for( int i=0; i<count; i++ ) buf[i]=Wire.read();
   return (wres==0) && (rres==count);

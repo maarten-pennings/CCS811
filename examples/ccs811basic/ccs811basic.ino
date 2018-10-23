@@ -8,20 +8,21 @@
 #include "ccs811.h"  // CCS811 library
 
 
+// Wiring for ESP8266 NodeMCU boards: VDD to 3V3, GND to GND, SDA to D2, SCL to D1, nWAKE to D3 (or GND)
 CCS811 ccs811(D3); // nWAKE on D3
 
 
 void setup() {
   // Enable serial
-  delay(1000);
   Serial.begin(115200);
   Serial.println("");
   Serial.println("Starting CCS811 basic demo");
 
-  // Enable I2C for ESP8266 NodeMCU boards [VDD to 3V3, GND to GND, SDA to D2, SCL to D1, nWAKE to D3 (or GND)]
+  // Enable I2C
   Wire.begin(); 
   
   // Enable CCS811
+  ccs811.set_i2cdelay(50); // Needed for ESP8266 because it doesn't handle I2C clock stretch correctly
   bool ok= ccs811.begin();
   if( !ok ) Serial.println("init: CCS811 begin FAILED");
 
@@ -32,34 +33,34 @@ void setup() {
   
   // Start measuring
   ok= ccs811.start(CCS811_MODE_1SEC);
-  if( !ok) Serial.println("init: CCS811 start FAILED");
+  if( !ok ) Serial.println("init: CCS811 start FAILED");
 }
 
 
 void loop() {
-  // Wait
-  delay(3000); 
-
   // Read
-  uint16_t eco2;
-  uint16_t etvoc;
-  uint16_t errstat;
-  uint16_t raw;
+  uint16_t eco2, etvoc, errstat, raw;
   ccs811.read(&eco2,&etvoc,&errstat,&raw); 
   
-  // Note, I2C errors are also in errstat (CCS811_ERRSTAT_I2CFAIL)
-  if( errstat & CCS811_ERRSTAT_I2CFAIL ) { Serial.println("CCS811: I2C error"); return; } 
+  // Print measurement results based on status
+  if( errstat==CCS811_ERRSTAT_OK ) { 
+    Serial.print("CCS811: ");
+    Serial.print("eco2=");  Serial.print(eco2);     Serial.print(" ppm  ");
+    Serial.print("etvoc="); Serial.print(etvoc);    Serial.print(" ppb  ");
+    //Serial.print("raw6=");  Serial.print(raw/1024); Serial.print(" uA  "); 
+    //Serial.print("raw10="); Serial.print(raw%1024); Serial.print(" ADC  ");
+    //Serial.print("R="); Serial.print((1650*1000L/1023)*(raw%1024)/(raw/1024)); Serial.print(" ohm");
+    Serial.println();
+  } else if( errstat==CCS811_ERRSTAT_OK_NODATA ) {
+    Serial.println("CCS811: waiting for (new) data");
+  } else if( errstat & CCS811_ERRSTAT_I2CFAIL ) { 
+    Serial.println("CCS811: I2C error");
+  } else {
+    Serial.print("CCS811: errstat="); Serial.print(errstat,HEX); 
+    Serial.print("="); Serial.println( ccs811.errstat_str(errstat) ); 
+  }
   
-  // Check if errstat flags indicates there is valid and new data, or whether data is old or has errors
-  bool valid_and_new = ( (errstat&CCS811_ERRSTAT_NEEDS) == CCS811_ERRSTAT_NEEDS )  &&  ( (errstat&CCS811_ERRSTAT_ERRORS)==0 );
-  
-  // Print
-  Serial.print("CCS811: ");
-  Serial.print("eco2=");    Serial.print(eco2);        Serial.print(" ppm,  ");
-  Serial.print("etvoc=");   Serial.print(etvoc);       Serial.print(" ppb,  ");
-  Serial.print("errstat="); Serial.print(errstat,HEX); Serial.print("="); Serial.print(ccs811.errstat_str(errstat)); Serial.print( valid_and_new?"=valid&new,  ":"=ERROR|OLD,  ");
-  Serial.print("raw6=");    Serial.print(raw/1024);    Serial.print(" uA,  "); 
-  Serial.print("raw10=");   Serial.print(raw%1024);    Serial.print(" ADC");
-  Serial.println();
+  // Wait
+  delay(1000); 
 }
 
