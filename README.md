@@ -75,6 +75,13 @@ The CCS811 has several PINS:
 ## Tested boards
 This library has been tested with three boards.
 
+Most micro controllers seem to have built-in pull-ups for I2C.
+However, those pull-ups are typically activated by `Wire.begin()`.
+Therefore, between power-up (or reset) and `Wire.begin()`, the I2C lines might not be high.
+This might cause unwanted behavior on the slaves.
+
+It is recommended to add 10k pull-ups on both SDA and SCL.
+
 
 ### ESP8266
 For the NodeMCU (ESP8266), connect as follows (I did not use pull-ups, presumably they are inside the MCU)
@@ -141,21 +148,20 @@ To build an example sketch
      init: hardware    version: 12
      init: bootloader  version: 1000
      init: application version: 2000
-     CCS811: eco2=0 ppm,  etvoc=0 ppb,  errstat=90=--vhxmrwF--Ad-ie=ERROR|OLD,  raw6=2 uA,  raw10=575 ADC
-     CCS811: eco2=400 ppm,  etvoc=0 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=576 ADC
-     CCS811: eco2=400 ppm,  etvoc=0 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=577 ADC
-     CCS811: eco2=408 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=575 ADC
-     CCS811: eco2=409 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=576 ADC
-     CCS811: eco2=405 ppm,  etvoc=0 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=577 ADC
-     CCS811: eco2=409 ppm,  etvoc=1 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=576 ADC
-     CCS811: eco2=400 ppm,  etvoc=0 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=580 ADC
-     CCS811: eco2=533 ppm,  etvoc=20 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=543 ADC
-     CCS811: eco2=556 ppm,  etvoc=23 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=537 ADC
-     CCS811: eco2=542 ppm,  etvoc=21 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=540 ADC
-     CCS811: eco2=536 ppm,  etvoc=20 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=542 ADC
-     CCS811: eco2=476 ppm,  etvoc=11 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=557 ADC
-     CCS811: eco2=508 ppm,  etvoc=16 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=548 ADC
-     CCS811: eco2=500 ppm,  etvoc=15 ppb,  errstat=98=--vhxmrwF--AD-ie=valid&new,  raw6=2 uA,  raw10=551 ADC
+     CCS811: waiting for (new) data
+     CCS811: waiting for (new) data
+     CCS811: waiting for (new) data
+     CCS811: waiting for (new) data
+     CCS811: eco2=400 ppm  etvoc=0 ppb  
+     CCS811: eco2=405 ppm  etvoc=0 ppb  
+     CCS811: eco2=405 ppm  etvoc=0 ppb  
+     CCS811: eco2=407 ppm  etvoc=1 ppb  
+     CCS811: eco2=405 ppm  etvoc=0 ppb  
+     CCS811: eco2=400 ppm  etvoc=0 ppb  
+     CCS811: eco2=400 ppm  etvoc=0 ppb  
+     CCS811: eco2=405 ppm  etvoc=0 ppb  
+     CCS811: eco2=405 ppm  etvoc=0 ppb  
+     CCS811: eco2=405 ppm  etvoc=0 ppb
      ```
  - It is normal that early measurements have `errstat=90=--vhxmrwF--Ad-ie`, i.e. STATUS.DATA_READY clear
    (the lowercase `d`); the internal gas library needs some data points to startup.
