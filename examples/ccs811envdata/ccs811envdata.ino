@@ -14,28 +14,32 @@ CCS811 ccs811(D3); // nWAKE on D3
 
 
 void setup() {
-  bool ok;
-  
   // Enable serial
   Serial.begin(115200);
   Serial.println("");
-  Serial.println("Starting CCS811 envdata demo");
+  Serial.println("setup: Starting CCS811 envdata demo");
 
-  // Enable I2C for ESP8266 NodeMCU boards [VDD to 3V3, GND to GND, SDA to D2, SCL to D1, nWAKE to D3 (or GND)]
+  // Enable I2C, e.g. for ESP8266 NodeMCU boards: VDD to 3V3, GND to GND, SDA to D2, SCL to D1, nWAKE to D3 (or GND)
+  Serial.print("setup: I2C ");
   Wire.begin(); 
-
+  Serial.println("ok");
+  
   // Enable ENS210
+  Serial.print("setup: ENS210 ");
+  bool ok;
   ok= ens210.begin();
-  if( !ok ) Serial.println("init: ENS210 begin FAILED");
+  if( ok ) Serial.println("ok"); else Serial.println("FAILED");
 
   // Enable CCS811
+  Serial.print("setup: CCS811 ");
   ccs811.set_i2cdelay(50); // Needed for ESP8266 because it doesn't handle I2C clock stretch correctly
   ok= ccs811.begin();
-  if( !ok ) Serial.println("init: CCS811 begin FAILED");
+  if( ok ) Serial.println("ok"); else Serial.println("FAILED");
 
   // Start CCS811 (measure every 1 second)
+  Serial.print("setup: CCS811 start ");
   ok= ccs811.start(CCS811_MODE_1SEC);
-  if( !ok) Serial.println("init: CCS811 start FAILED");
+  if( ok ) Serial.println("ok"); else Serial.println("FAILED");
 }
 
 

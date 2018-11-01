@@ -268,10 +268,17 @@ bool CCS811::set_envdata(uint16 t, uint16 h) {
 
 // Writes t and h (in ENS210 format) to ENV_DATA. Returns false on I2C problems.
 bool CCS811::set_envdata210(uint16 t, uint16 h) {
-  uint16_t offset= (273.15-25)*64;
-  if( t<offset ) t=offset;
-  if( t>UINT16_MAX/8+offset ) t= UINT16_MAX/8+offset;
-  return set_envdata( (t-offset)*8 , h);
+  // Humidity formats of ENS210 and CCS811 are equal, we only need to map temperature.
+  // The lowest and highest (raw) ENS210 temperature values the CCS811 can handle
+  uint16_t lo= 15882; // (273.15-25)*64 = 15881.6 (float to int error is 0.4)
+  uint16_t hi= 24073; // 65535/8+lo = 24073.875 (24074 would map to 65539, so overflow)
+  // Check if ENS210 temperature is within CCS811 range, if not clip, if so map
+  bool ok;
+  if( t<lo )      ok= set_envdata(0,h);
+  else if( t>hi ) ok= set_envdata(65535,h);
+  else            ok= set_envdata( (t-lo)*8+3 , h); // error in 'lo' is 0.4; times 8 is 3.2; so we correct 3
+  // Returns I2C transaction status
+  return ok;
 }
  
  
@@ -280,7 +287,7 @@ bool CCS811::set_envdata210(uint16 t, uint16 h) {
 
 // Delay before a repeated start - needed for e.g. ESP8266 because it doesn't handle I2C clock stretch correctly
 void CCS811::set_i2cdelay(int us) {
-  if( us<0 ) us=0;
+  if( us<0 ) us= 0;
   _i2cdelay_us= us;
 }
 
@@ -294,6 +301,7 @@ int  CCS811::get_i2cdelay(void) {
 // Helper interface: nwake pin ========================================================================================
 
 
+// _nwake<0 means nWAKE is not connected to a pin of the host, so no action needed
 void CCS811::wake_init( void ) {
   if( _nwake>=0 ) pinMode(_nwake, OUTPUT);
 }
