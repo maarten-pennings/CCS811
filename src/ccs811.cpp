@@ -1,5 +1,6 @@
 /*
   ccs811.cpp - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2018 Nov 02  v5  Maarten Pennings  Added clearing of ERROR_ID
   2018 Oct 23  v4  Maarten Pennings  Added envdata/i2cdelay
   2018 Oct 21  v3  Maarten Pennings  Fixed bug in begin(), added hw-version
   2018 Oct 21  v2  Maarten Pennings  Simplified I2C, added version mngt
@@ -181,6 +182,11 @@ void CCS811::read( uint16_t*eco2, uint16_t*etvoc, uint16_t*errstat,uint16_t*raw)
   if( combined & ~(CCS811_ERRSTAT_HWERRORS|CCS811_ERRSTAT_OK) ) ok= false; // Unused bits are 1: I2C transfer error
   combined &= CCS811_ERRSTAT_HWERRORS|CCS811_ERRSTAT_OK; // Clear all unused bits
   if( !ok ) combined |= CCS811_ERRSTAT_I2CFAIL;
+  // Clear ERROR_ID if flags are set
+  if( combined & CCS811_ERRSTAT_HWERRORS ) {
+      int err = get_errorid();
+      if( err==-1 ) combined |= CCS811_ERRSTAT_I2CFAIL; // Propagate I2C error
+  }
   // Outputs
   if( eco2   ) *eco2   = buf[0]*256+buf[1];
   if( etvoc  ) *etvoc  = buf[2]*256+buf[3];
@@ -225,7 +231,7 @@ int CCS811::hardware_version(void) {
   wake_up();
   bool ok = i2cread(CCS811_HW_VERSION,1,buf);
   wake_down();
-  int version= 0;
+  int version= -1;
   if( ok ) version= buf[0];
   return version;
 }
@@ -237,7 +243,7 @@ int CCS811::bootloader_version(void) {
   wake_up();
   bool ok = i2cread(CCS811_FW_BOOT_VERSION,2,buf);
   wake_down();
-  int version= 0;
+  int version= -1;
   if( ok ) version= buf[0]*256+buf[1];
   return version;
 }
@@ -249,8 +255,21 @@ int CCS811::application_version(void) {
   wake_up();
   bool ok = i2cread(CCS811_FW_APP_VERSION,2,buf);
   wake_down();
-  int version= 0;
+  int version= -1;
   if( ok ) version= buf[0]*256+buf[1];
+  return version;
+}
+
+
+// Gets the ERROR_ID [same as 'err' part of 'errstat' in 'read'] (returns -1 on I2C failure)
+// Note, this actually clears CCS811_ERROR_ID (hardware feature)
+int CCS811::get_errorid(void) {
+  uint8_t buf[1];
+  wake_up();
+  bool ok = i2cread(CCS811_ERROR_ID,1,buf);
+  wake_down();
+  int version= -1;
+  if( ok ) version= buf[0];
   return version;
 }
 
