@@ -1,5 +1,6 @@
 /*
   ccs811.h - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2018 Nov 11  v6  Maarten Pennings  uint16 -> uint16_t
   2018 Nov 02  v5  Maarten Pennings  Added clearing of ERROR_ID
   2018 Oct 23  v4  Maarten Pennings  Added envdata/i2cdelay
   2018 Oct 21  v3  Maarten Pennings  Added hw-version
@@ -61,8 +62,8 @@ class CCS811 {
     int  bootloader_version(void);                                            // Gets version of the CCS811 bootloader (returns -1 on I2C failure)
     int  application_version(void);                                           // Gets version of the CCS811 application (returns -1 on I2C failure)
     int  get_errorid(void);                                                   // Gets the ERROR_ID [same as 'err' part of 'errstat' in 'read'] (returns -1 on I2C failure)
-    bool set_envdata(uint16 t, uint16 h);                                     // Writes t and h to ENV_DATA (see datasheet for format). Returns false on I2C problems.
-    bool set_envdata210(uint16 t, uint16 h);                                  // Writes t and h (in ENS210 format) to ENV_DATA. Returns false on I2C problems.
+    bool set_envdata(uint16_t t, uint16_t h);                                 // Writes t and h to ENV_DATA (see datasheet for format). Returns false on I2C problems.
+    bool set_envdata210(uint16_t t, uint16_t h);                              // Writes t and h (in ENS210 format) to ENV_DATA. Returns false on I2C problems.
   public: // Advanced interface: i2cdelay
     void set_i2cdelay(int us);                                                // Delay before a repeated start - needed for e.g. ESP8266 because it doesn't handle I2C clock stretch correctly
     int  get_i2cdelay(void);                                                  // Get current delay

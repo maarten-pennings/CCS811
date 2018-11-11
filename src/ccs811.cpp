@@ -1,5 +1,6 @@
 /*
   ccs811.cpp - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2018 Nov 11  v6  Maarten Pennings  uint16 -> uint16_t, added cast
   2018 Nov 02  v5  Maarten Pennings  Added clearing of ERROR_ID
   2018 Oct 23  v4  Maarten Pennings  Added envdata/i2cdelay
   2018 Oct 21  v3  Maarten Pennings  Fixed bug in begin(), added hw-version
@@ -110,7 +111,7 @@ bool CCS811::begin( void ) {
       PRINTLN("ccs811: begin: HW_VERSION read failed");
       goto abort_begin;
     }
-    if( hw_version&0xF0!=0x10 ) {
+    if( (hw_version&0xF0)!=0x10 ) {
       PRINT("ccs811: begin: Wrong HW_VERSION: ");
       PRINTLN(hw_version,HEX);
       goto abort_begin;
@@ -275,8 +276,10 @@ int CCS811::get_errorid(void) {
 
 
 // Writes t and h to ENV_DATA (see datasheet for format). Returns false on I2C problems.
-bool CCS811::set_envdata(uint16 t, uint16 h) {
-  uint8_t envdata[]= { (h>>8)&0xff, (h>>0)&0xff, (t>>8)&0xff, (t>>0)&0xff };
+bool CCS811::set_envdata(uint16_t t, uint16_t h) {
+  #define HI(u16) ( (uint8_t)( ((u16)>>8)&0xFF ) ) 
+  #define LO(u16) ( (uint8_t)( ((u16)>>0)&0xFF ) ) 
+  uint8_t envdata[]= { HI(h), LO(h), HI(t), LO(t) };
   wake_up();
   // Serial.print(" [T="); Serial.print(t); Serial.print(" H="); Serial.print(h); Serial.println("] ");
   bool ok = i2cwrite(CCS811_ENV_DATA,2,envdata);
@@ -286,7 +289,7 @@ bool CCS811::set_envdata(uint16 t, uint16 h) {
 
 
 // Writes t and h (in ENS210 format) to ENV_DATA. Returns false on I2C problems.
-bool CCS811::set_envdata210(uint16 t, uint16 h) {
+bool CCS811::set_envdata210(uint16_t t, uint16_t h) {
   // Humidity formats of ENS210 and CCS811 are equal, we only need to map temperature.
   // The lowest and highest (raw) ENS210 temperature values the CCS811 can handle
   uint16_t lo= 15882; // (273.15-25)*64 = 15881.6 (float to int error is 0.4)
