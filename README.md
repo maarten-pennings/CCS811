@@ -97,7 +97,18 @@ For the NodeMCU (ESP8266), connect as follows (I did not use pull-ups, presumabl
 ![wiring ESP8266 NodeMCU](wire-esp.jpg)
 
 Unfortunately, the CCS811 uses clock stretching, and the I2C sw library in the ESP8266
-can not handle this in all cases, therefore this library add waits (see `CCS811_WAIT_REPSTART_US` in `ccs811.cpp`).
+can not handle this in all cases, therefore this library add waits (see `set_i2cdelay()` in `ccs811.h`).
+
+However, the real solution is to fix the clock stretch problem in the ESP8266 core libraries.
+I have submitted an [issue](https://github.com/esp8266/Arduino/issues/5340) for that.
+You can do this yourself: open the directory with core libaries (on my pc they are in 
+`C:\Users\mpen\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.2\cores\esp8266`) 
+and edit `core_esp8266_si2c.c`. You need to add one line to both functions: `twi_writeTo()` and `twi_readFrom()`. 
+This line needs to be added after `SCL_HIGH()`, it implements a wait as long as the slave stretches the clock.
+   ```
+   unsigned int t=0; while (SCL_READ() == 0 && (t++) < twi_clockStretchLimit); // Clock stretching
+   ```
+See this [screen shot](ESP8266-AddClockStretch.png) for the change I made.
 
 
 ### Pro Mini

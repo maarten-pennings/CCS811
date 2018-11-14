@@ -2,7 +2,7 @@
   ccs811thingspeak.ino - Upload (ENS210 improved) CCS811 measurements to ThingSpeak using ESP8266
   Created by Maarten Pennings 2018 nov 02
 */
-#define VERSION "v1"
+#define VERSION "v2"
 
 
 /*
@@ -102,7 +102,10 @@ void setup() {
   Serial.printf("setup: ENS210 %s\n", ok?"up":"FAILED" );
 
   // Enable CCS811
-  ccs811.set_i2cdelay(50); // Needed for ESP8266 because it doesn't handle I2C clock stretch correctly
+  // The ESP8266 does not handle I2C clock stretch correctly.
+  // See the readme for a patch in the ESP8266 si2c driver to fix this.
+  // Alternatively enable the below line, but it is less robust.
+  //ccs811.set_i2cdelay(50); // Needed for ESP8266 because it doesn't handle I2C clock stretch correctly
   ok= ccs811.begin();
   Serial.printf("setup: CCS811 %s\n", ok?"up":"FAILED" );
 
