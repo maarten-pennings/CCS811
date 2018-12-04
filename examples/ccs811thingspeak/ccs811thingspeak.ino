@@ -84,7 +84,7 @@ void setup() {
   // Enable serial
   delay(3000); // Give user some time to connect USB serial
   Serial.begin(115200);
-  Serial.printf("\n\nsetup: CCS811 to ThingSpeak %s\n",VERSION);
+  Serial.printf("\n\nsetup: CCS811 to ThingSpeak %s (lib v%d)\n",VERSION, CCS811_VERSION);
 
   // Print some version info
   Serial.printf("setup: core=%s, sdk=%s, freq=%d\n",ESP.getCoreVersion().c_str(),ESP.getSdkVersion(),ESP.getCpuFreqMHz() );

@@ -1,5 +1,6 @@
 /*
   ccs811.cpp - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2018 Dec 04  v7  Maarten Pennings  Added support for older CCS811's (fw 1100)
   2018 Nov 11  v6  Maarten Pennings  uint16 -> uint16_t, added cast
   2018 Nov 02  v5  Maarten Pennings  Added clearing of ERROR_ID
   2018 Oct 23  v4  Maarten Pennings  Added envdata/i2cdelay
@@ -64,6 +65,7 @@ bool CCS811::begin( void ) {
   uint8_t app_start[]= {};
   uint8_t hw_id;
   uint8_t hw_version;
+  uint8_t app_version[2];
   uint8_t status;
   bool ok;
 
@@ -81,7 +83,7 @@ bool CCS811::begin( void ) {
       if( ok )
         PRINTLN("ccs811: begin: wrong slave address, ping successful on other address");
       else
-        PRINTLN("ccs811: begin: ping failed (VDD/GNF connected? SDA/SCL connected?)");
+        PRINTLN("ccs811: begin: ping failed (VDD/GND connected? SDA/SCL connected?)");
       goto abort_begin;
     }
 
@@ -129,6 +131,14 @@ bool CCS811::begin( void ) {
       goto abort_begin;
     }
 
+    // Read the application version
+    ok= i2cread(CCS811_FW_APP_VERSION,2,app_version);
+    if( !ok ) {
+      PRINTLN("ccs811: begin: APP_VERSION read failed");
+      goto abort_begin;
+    }
+    _appversion= app_version[0]*256+app_version[1];
+    
     // Switch CCS811 from boot mode into app mode
     ok= i2cwrite(CCS811_APP_START,0,app_start);
     if( !ok ) {
@@ -174,9 +184,17 @@ bool CCS811::start( int mode ) {
 
 // Get measurement results from the CCS811, check status via errstat, e.g. ccs811_errstat(errstat)
 void CCS811::read( uint16_t*eco2, uint16_t*etvoc, uint16_t*errstat,uint16_t*raw) {
+  bool    ok;
   uint8_t buf[8];
+  uint8_t stat;
   wake_up();
-  bool ok = i2cread(CCS811_ALG_RESULT_DATA,8,buf);
+    if( _appversion<0x2000 ) {
+      ok= i2cread(CCS811_STATUS,1,&stat); // CCS811 with pre 2.0.0 firmware has wrong STATUS in CCS811_ALG_RESULT_DATA
+      if( ok && stat==CCS811_ERRSTAT_OK ) ok= i2cread(CCS811_ALG_RESULT_DATA,8,buf); else buf[5]=0;
+      buf[4]= stat; // Update STATUS field with correct STATUS
+    } else {
+      ok = i2cread(CCS811_ALG_RESULT_DATA,8,buf);
+    }
   wake_down();
   // Status and error management
   uint16_t combined = buf[5]*256+buf[4];

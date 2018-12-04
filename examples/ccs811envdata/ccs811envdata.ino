@@ -18,6 +18,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println("");
   Serial.println("setup: Starting CCS811 envdata demo");
+  Serial.print("setup: library     version: "); Serial.println(CCS811_VERSION);
 
   // Enable I2C, e.g. for ESP8266 NodeMCU boards: VDD to 3V3, GND to GND, SDA to D2, SCL to D1, nWAKE to D3 (or GND)
   Serial.print("setup: I2C ");

@@ -1,5 +1,6 @@
 /*
   ccs811.h - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2018 Dec 04  v7  Maarten Pennings  Added support for older CCS811's (fw 1100)
   2018 Nov 11  v6  Maarten Pennings  uint16 -> uint16_t
   2018 Nov 02  v5  Maarten Pennings  Added clearing of ERROR_ID
   2018 Oct 23  v4  Maarten Pennings  Added envdata/i2cdelay
@@ -14,9 +15,13 @@
 #include <stdint.h>
 
 
+// Version of this CCS811 driver
+#define CCS811_VERSION                     7
+
+
 // I2C slave address for ADDR 0 respectively 1
-#define CCS811_SLAVEADDR_0                  0x5A
-#define CCS811_SLAVEADDR_1                  0x5B
+#define CCS811_SLAVEADDR_0                 0x5A
+#define CCS811_SLAVEADDR_1                 0x5B
 
 
 // The values for mode in ccs811_start()
@@ -78,6 +83,7 @@ class CCS811 {
     int  _nwake;                                                              // Pin number for nWAKE pin (or -1)
     int  _slaveaddr;                                                          // Slave address of the CCS811
     int  _i2cdelay_us;                                                        // Delay in us just before an I2C repeated start condition
+    int  _appversion;                                                         // Version of the app firmware inside the CCS811 (for workarounds)
 };
 
 
