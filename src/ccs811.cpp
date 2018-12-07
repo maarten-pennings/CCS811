@@ -1,5 +1,6 @@
 /*
   ccs811.cpp - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2018 dec 06  v8  Maarten Pennings  Added firmware flash routine  
   2018 Dec 04  v7  Maarten Pennings  Added support for older CCS811's (fw 1100)
   2018 Nov 11  v6  Maarten Pennings  uint16 -> uint16_t, added cast
   2018 Nov 02  v5  Maarten Pennings  Added clearing of ERROR_ID
@@ -25,6 +26,9 @@
 #define CCS811_WAIT_AFTER_RESET_US     2000 // The CCS811 needs a wait after reset
 #define CCS811_WAIT_AFTER_APPSTART_US  1000 // The CCS811 needs a wait after app start
 #define CCS811_WAIT_AFTER_WAKE_US        50 // The CCS811 needs a wait after WAKE signal
+#define CCS811_WAIT_AFTER_APPERASE_MS   500 // The CCS811 needs a wait after app erase (300ms from spec not enough)
+#define CCS811_WAIT_AFTER_APPVERIFY_MS   70 // The CCS811 needs a wait after app verify
+#define CCS811_WAIT_AFTER_APPDATA_MS     50 // The CCS811 needs a wait after writing app data
 
 
 // Main interface =====================================================================================================
@@ -321,6 +325,126 @@ bool CCS811::set_envdata210(uint16_t t, uint16_t h) {
   return ok;
 }
  
+
+// Flashes the firmware of the CCS811 with size bytes from image 
+bool CCS811::flash(uint8_t * image, int size) {
+  uint8_t sw_reset[]=   {0x11,0xE5,0x72,0x8A};
+  uint8_t app_erase[]=  {0xE7,0xA7,0xE6,0x09};
+  uint8_t app_verify[]= {};
+  uint8_t status;
+  int count;
+  bool ok;
+  wake_up();
+  
+    // Try to ping CCS811 (can we reach CCS811 via I2C?)
+    ok= i2cwrite(0,0,0);
+    if( !ok ) {
+      PRINTLN("ccs811: flash: wrong slave address, ping successful on other address");
+      goto abort_begin;
+    }
+    PRINTLN("ccs811: flash: successful ping");
+
+    // Invoke a SW reset (bring CCS811 in a know state)
+    ok= i2cwrite(CCS811_SW_RESET,4,sw_reset);
+    if( !ok ) {
+      PRINTLN("ccs811: flash: reset failed");
+      goto abort_begin;
+    }
+    delayMicroseconds(CCS811_WAIT_AFTER_RESET_US);
+    PRINTLN("ccs811: flash: successful reset");
+  
+    // Check status (after reset, CCS811 should be in boot mode with or without valid app)
+    ok= i2cread(CCS811_STATUS,1,&status);
+    if( !ok ) {
+      PRINTLN("ccs811: flash: STATUS read (after reset) failed");
+      goto abort_begin;
+    }
+    if( status & 0x80 ) {
+      PRINT("ccs811: flash: Not in boot mode: ");
+      PRINTLN(status,HEX);
+      goto abort_begin;
+    }
+    PRINT("ccs811: flash: status ok (boot mode): ");
+    PRINTLN(status,HEX);
+
+    // Invoke app erase
+    ok= i2cwrite(CCS811_APP_ERASE,4,app_erase);
+    if( !ok ) {
+      PRINTLN("ccs811: flash: app erase failed");
+      goto abort_begin;
+    }
+    delay(CCS811_WAIT_AFTER_APPERASE_MS);
+    PRINTLN("ccs811: flash: successful erase");
+  
+    // Check status (CCS811 should be in boot mode without valid app, with erase completed)
+    ok= i2cread(CCS811_STATUS,1,&status);
+    if( !ok ) {
+      PRINTLN("ccs811: flash: STATUS read (after erase) failed");
+      goto abort_begin;
+    }
+    if( status!=0x40 ) {
+      PRINT("ccs811: flash: Not erased: ");
+      PRINTLN(status,HEX);
+      goto abort_begin;
+    }
+    PRINT("ccs811: flash: status ok (erased): ");
+    PRINTLN(status,HEX);
+
+    // Write all blocks
+    count= 0;
+    while( size>0 ) {
+        if( count%64==0 ) PRINT("ccs811: flash: writing ...");
+        int len= size<8 ? size : 8;
+        ok= i2cwrite(CCS811_APP_DATA,len,image);
+        if( !ok ) {
+          PRINTLN("ccs811: flash: app data failed");
+          goto abort_begin;
+        }
+        PRINT(".");
+        if( count%64==63 ) PRINTLN("");
+        delay(CCS811_WAIT_AFTER_APPDATA_MS);
+        image+= len;
+        size-= len;
+        count++;
+    }
+    if( count%64==0 ) PRINT("ccs811: flash: writing ...");
+    PRINTLN(" done");
+    
+    // verify writing
+    ok= i2cwrite(CCS811_APP_VERIFY,0,app_verify);
+    if( !ok ) {
+      PRINTLN("ccs811: begin: Goto app mode failed");
+      goto abort_begin;
+    }
+    delay(CCS811_WAIT_AFTER_APPVERIFY_MS);
+    PRINTLN("ccs811: flash: successful verify");
+
+    // Check status (CCS811 should be in boot mode with valid app, and erased and verified)
+    ok= i2cread(CCS811_STATUS,1,&status);
+    if( !ok ) {
+      PRINTLN("ccs811: flash: STATUS read (after erase) failed");
+      goto abort_begin;
+    }
+    if( status!=0x30 ) {
+      PRINT("ccs811: flash: Not verified: ");
+      PRINTLN(status,HEX);
+      goto abort_begin;
+    }
+    PRINT("ccs811: flash: status ok (verified): ");
+    PRINTLN(status,HEX);
+    
+  // CCS811 back to sleep
+  wake_down();
+  // Return success
+  return true;
+
+abort_begin:
+  // CCS811 back to sleep
+  wake_down();
+  // Return failure
+  return false;
+}
+
  
 // Advanced interface: i2cdelay ========================================================================================
 

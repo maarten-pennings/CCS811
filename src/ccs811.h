@@ -1,5 +1,6 @@
 /*
   ccs811.h - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2018 dec 06  v8  Maarten Pennings  Added firmware flash routine
   2018 Dec 04  v7  Maarten Pennings  Added support for older CCS811's (fw 1100)
   2018 Nov 11  v6  Maarten Pennings  uint16 -> uint16_t
   2018 Nov 02  v5  Maarten Pennings  Added clearing of ERROR_ID
@@ -16,7 +17,7 @@
 
 
 // Version of this CCS811 driver
-#define CCS811_VERSION                     7
+#define CCS811_VERSION                     8
 
 
 // I2C slave address for ADDR 0 respectively 1
@@ -69,6 +70,7 @@ class CCS811 {
     int  get_errorid(void);                                                   // Gets the ERROR_ID [same as 'err' part of 'errstat' in 'read'] (returns -1 on I2C failure)
     bool set_envdata(uint16_t t, uint16_t h);                                 // Writes t and h to ENV_DATA (see datasheet for format). Returns false on I2C problems.
     bool set_envdata210(uint16_t t, uint16_t h);                              // Writes t and h (in ENS210 format) to ENV_DATA. Returns false on I2C problems.
+    bool flash(uint8_t * image, int size);                                    // Flashes the firmware of the CCS811 with size bytes from image
   public: // Advanced interface: i2cdelay
     void set_i2cdelay(int us);                                                // Delay before a repeated start - needed for e.g. ESP8266 because it doesn't handle I2C clock stretch correctly
     int  get_i2cdelay(void);                                                  // Get current delay
