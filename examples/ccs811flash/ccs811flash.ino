@@ -1,6 +1,6 @@
 /*
   ccs811flash.ino - Sketch to flash a CCS811 with 2.0.0 firmware.
-  Created by Maarten Pennings 2017 Dec 11
+  Created by Maarten Pennings 2018 Dec 10
 */
 
 
@@ -35,8 +35,11 @@ void setup() {
   Serial.print("init: bootloader  version: "); Serial.println(ccs811.bootloader_version(),HEX);
   Serial.print("init: application version: "); Serial.println(ccs811.application_version(),HEX);
 
-  // Flash
+  // Check if flashing should be executed
   if( ccs811.application_version()==0x2000 ) { Serial.println("init: already has 2.0.0"); return; } // Do not reflash
+  Serial.println("init: comment-out this code line if you want to flash"); return; // Extra precaution
+  
+  // Flash
   Serial.print("init: starting flash of '");
   Serial.print(image_name);
   Serial.println("' in 5 seconds");
