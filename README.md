@@ -140,11 +140,11 @@ For the Arduino Nano, connect as follows  (I did not use pull-ups, presumably th
 
 
 ### CCS811
-Connect the official ams CCS811 module (also has ENS210) as follows
+Connect the official ams CCS811 module, which also has an ENS210, as follows
 
 ![wiring CCS811](wire-ccs811.jpg)
 
-This board only features a CCS811
+An alternative is a CCS811-only board (without and ENS210). Wire it as follows
 
 ![Wiring CCS811](wire-ccs811only.jpg)
 
