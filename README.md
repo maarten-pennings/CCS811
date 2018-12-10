@@ -183,5 +183,6 @@ To build an example sketch
 
  - At the time of writing this application, `application version: 2000` is available on the ams.com website.
    You might still have version 1100. To Flash it, you need the [CCS811 eval kit](https://ams.com/ccs811evalkit).
+   As an alternative, you could try the [flash example](examples/ccs811flash) - on your own risk.
  
 (end of doc)
