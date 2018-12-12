@@ -339,7 +339,7 @@ bool CCS811::flash(uint8_t * image, int size) {
     // Try to ping CCS811 (can we reach CCS811 via I2C?)
     ok= i2cwrite(0,0,0);
     if( !ok ) {
-      PRINTLN("ccs811: flash: wrong slave address, ping successful on other address");
+      PRINTLN("ccs811: flash: wrong slave address");
       goto abort_begin;
     }
     PRINTLN("ccs811: flash: successful ping");
