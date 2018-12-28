@@ -18,23 +18,27 @@ Also note that the minimum supply voltage is 1.8V and should not drop below this
 
 
 ## Links
-The CCS811 is made by [ams](https://www.ams.com). This library is compatible with the following variants.
+The CCS811 is made by [ams](https://www.ams.com). 
  - Find the datasheet of the CCS811 on the
    [product page](https://ams.com/ccs811).
  - Find application notes and software on the
-   same page (see Tools&Support or Technical Documents).
+   [Technical Documents](http://ams.com/ccs811#tab/documents) tab.
+ - Find the latest in-chip firmware on the
+   [Tools & Support](http://ams.com/ccs811#tab/tools) tab: CCS811_SW000246_x-xx.bin.
 
 
-## Prerequisites
+## Software
+
+### Prerequisites
 It is assumed that
  - The Arduino IDE has been installed.
    If not, refer to "Install the Arduino Desktop IDE" on the
    [Arduino site](https://www.arduino.cc/en/Guide/HomePage).
- - The library directory is at its default location.
+ - The Arduino library directory is at its default location.
    For me, Maarten, that is `C:\Users\maarten\Documents\Arduino\libraries`.
 
 
-## Installation
+### Installation
 Installation steps
  - Visit the [project page](https://github.com/maarten-pennings/CCS811) for the Arduino CCS811 library.
  - Click the green button `Clone or download` on the right side.
@@ -45,16 +49,18 @@ Installation steps
    `C:\Users\maarten\Documents\Arduino\libraries\CCS811\README.md`.
 
 
-## Build an example
+### Build an example
 To build an example sketch
  - (Re)start Arduino.
- - Open File > Example > Examples from Custom Libraries > CCS811 > CCS811basic.
+ - Open File > Example > Examples from Custom Libraries > CCS811 > ccs811basic.
  - Make sure Tools > Board lists the correct board.
  - Select Sketch > Verify/Compile.
 
 
-## Wiring
-The CCS811 has several PINS:
+## Hardware
+
+### Wiring
+The CCS811 has several pins:
  - VDD must be connected to 3V3.
  - GND must be connected to GND.
  - SDA must be connected to SDA of micro (and maybe a pull-up, but the below micros have that internally).
@@ -69,10 +75,10 @@ The CCS811 has several PINS:
    If your board has an ADDR pin, then likely it has a pull-up, so leaving it dangling selects 0x5B.
    If your board has no ADDR pin, then likely it has the pin tied to GND, selecting 0x5A.
    The `ccs811.begin()` uses the address passed in the constructor, but if the other address does work, 
-   it prints this messages on Serial.
+   it prints this on Serial.
 
 
-## Tested boards
+### Tested boards
 This library has been tested with three boards.
 
 Most micro controllers seem to have built-in pull-ups for I2C.
@@ -83,7 +89,7 @@ This might cause unwanted behavior on the slaves.
 It is recommended to add 10k pull-ups on both SDA and SCL.
 
 
-### ESP8266
+#### ESP8266
 For the NodeMCU (ESP8266), connect as follows (I did not use pull-ups, presumably they are inside the MCU)
 
 | CCS811  |  ESP8266  |
@@ -111,7 +117,7 @@ This line needs to be added after `SCL_HIGH()`, it implements a wait as long as 
 See this [screen shot](ESP8266-AddClockStretch.png) for the change I made.
 
 
-### Pro Mini
+#### Pro Mini
 For the Pro mini (do *not* use a 5V board), connect as follows  (I did not use pull-ups, presumably they are inside the MCU)
 
 | CCS811  |  Pro mini |
@@ -125,7 +131,7 @@ For the Pro mini (do *not* use a 5V board), connect as follows  (I did not use p
 ![wiring pro mini](wire-promini.jpg)
 
 
-### Arduino Nano
+#### Arduino Nano
 For the Arduino Nano, connect as follows  (I did not use pull-ups, presumably they are inside the MCU)
 
 | CCS811  |    Nano   |
@@ -139,7 +145,7 @@ For the Arduino Nano, connect as follows  (I did not use pull-ups, presumably th
 ![wiring nano](wire-nanov3.jpg)
 
 
-### CCS811
+#### CCS811
 Connect the official ams CCS811 module, which also has an ENS210, as follows
 
 ![wiring CCS811](wire-ccs811.jpg)
@@ -152,11 +158,11 @@ An alternative is a CCS811-only board (without and ENS210). Wire it as follows
 ## Flash an example
 To build an example sketch
  - (Re)start Arduino.
- - Open File > Example > Examples from Custom Libraries > CCS811 > CCS811basic.
+ - Open File > Example > Examples from Custom Libraries > CCS811 > ccs811basic.
  - Make sure Tools > Board lists the correct board.
  - Select Sketch > Upload.
  - Select Tools > Serial Monitor.
- - Enjoy the output, which should be like this for `CCS811basic`:
+ - Enjoy the output, which should be like this for `ccs811basic`:
 
      ```Text
      Starting CCS811 basic demo
