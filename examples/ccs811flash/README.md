@@ -1,7 +1,7 @@
 # CCS811 flash
 Arduino sketch to flash an CCS811 with firmware 2.0.0.
 
-DISCLAIMER: FLASHING FIRMAWRE CARRIES THE RISK OF BRICKING YOUR CCS811. 
+DISCLAIMER: FLASHING FIRMWARE CARRIES THE RISK OF BRICKING YOUR CCS811. 
 I CANNOT BE HELD RESPONSIBLE IN THE EVENT SOMETHING GOES WRONG WITH 
 YOUR DEVICE DURING THE PROCESS OF FOLLOWING/USING THIS EXAMPLE. 
 
@@ -22,7 +22,7 @@ Note that this file has `1-00` as version, but that the description
 specifies `CCS811 Application firmware version 2.0.0`.
 
 I have written a Python script [hex.py](hex.py).
-I used it to convert the binary fimrware file to a C-array as follows
+I used it to convert the binary firmware file to a C-array as follows
 ```
 python hex.py CCS811_SW000246_1-00.bin > CCS811_SW000246_1-00.h
 ```
