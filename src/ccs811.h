@@ -1,5 +1,6 @@
 /*
   ccs811.h - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2019 jan 15  v9  Maarten Pennings  Flash&i2cwrite now use const array
   2018 dec 06  v8  Maarten Pennings  Added firmware flash routine
   2018 Dec 04  v7  Maarten Pennings  Added support for older CCS811's (fw 1100)
   2018 Nov 11  v6  Maarten Pennings  uint16 -> uint16_t
@@ -17,7 +18,7 @@
 
 
 // Version of this CCS811 driver
-#define CCS811_VERSION                     8
+#define CCS811_VERSION                     9
 
 
 // I2C slave address for ADDR 0 respectively 1
@@ -70,7 +71,7 @@ class CCS811 {
     int  get_errorid(void);                                                   // Gets the ERROR_ID [same as 'err' part of 'errstat' in 'read'] (returns -1 on I2C failure)
     bool set_envdata(uint16_t t, uint16_t h);                                 // Writes t and h to ENV_DATA (see datasheet for format). Returns false on I2C problems.
     bool set_envdata210(uint16_t t, uint16_t h);                              // Writes t and h (in ENS210 format) to ENV_DATA. Returns false on I2C problems.
-    bool flash(uint8_t * image, int size);                                    // Flashes the firmware of the CCS811 with size bytes from image
+    bool flash(const uint8_t * image, int size);                              // Flashes the firmware of the CCS811 with size bytes from image - image _must_ be in PROGMEM
   public: // Advanced interface: i2cdelay
     void set_i2cdelay(int us);                                                // Delay before a repeated start - needed for e.g. ESP8266 because it doesn't handle I2C clock stretch correctly
     int  get_i2cdelay(void);                                                  // Get current delay
@@ -79,7 +80,7 @@ class CCS811 {
     void wake_up(void);                                                       // Wake up CCS811, i.e. pull nwake pin low
     void wake_down(void);                                                     // CCS811 back to sleep, i.e. pull nwake pin high
   protected: // Helper interface: i2c wrapper
-    bool i2cwrite(int regaddr, int count, uint8_t * buf);                     // Writes `count` from `buf` to register at address `regaddr` in the CCS811. Returns false on I2C problems.
+    bool i2cwrite(int regaddr, int count, const uint8_t * buf);               // Writes `count` from `buf` to register at address `regaddr` in the CCS811. Returns false on I2C problems.
     bool i2cread (int regaddr, int count, uint8_t * buf);                     // Reads 'count` bytes from register at address `regaddr`, and stores them in `buf`. Returns false on I2C problems.
   private:
     int  _nwake;                                                              // Pin number for nWAKE pin (or -1)

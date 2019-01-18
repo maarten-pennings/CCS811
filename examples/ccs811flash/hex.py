@@ -1,4 +1,5 @@
 # hex.py - converts any file to a c-style array
+# 2019 01 15  Maarten Pennings  v2  Added const/PROGMEM to array
 # 2018 12 05  Maarten Pennings  v1  Created
 import sys;
 import datetime;
@@ -24,8 +25,8 @@ try:
     print( "" )
     print( "#include <stdint.h>" )
     print( "" )
-    print( "char * image_name=\""+name+"\";" )
-    print( "uint8_t image_data[]= {" )
+    print( "const char * image_name=\""+name+"\";" )
+    print( "const uint8_t image_data[] PROGMEM = {" )
     byte= f.read(1)
     while byte:
         if( n%16==0 ): print( "  ", end="" )

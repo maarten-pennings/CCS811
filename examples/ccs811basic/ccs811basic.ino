@@ -11,13 +11,19 @@
 // Wiring for ESP8266 NodeMCU boards: VDD to 3V3, GND to GND, SDA to D2, SCL to D1, nWAKE to D3 (or GND)
 CCS811 ccs811(D3); // nWAKE on D3
 
+// Wiring for Nano: VDD to 3v3, GND to GND, SDA to A4, SCL to A5, nWAKE to 13
+//CCS811 ccs811(13); 
+
+// nWAKE not controlled via Arduino host, so connect CCS811.nWAKE to GND
+//CCS811 ccs811; 
+
 
 void setup() {
   // Enable serial
   Serial.begin(115200);
   Serial.println("");
   Serial.println("setup: Starting CCS811 basic demo");
-  Serial.print("setup: library     version: "); Serial.println(CCS811_VERSION);
+  Serial.print("setup: ccs811 lib  version: "); Serial.println(CCS811_VERSION);
 
   // Enable I2C
   Wire.begin(); 
