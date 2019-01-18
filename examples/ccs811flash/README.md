@@ -32,8 +32,8 @@ The resulting text file `CCS811_SW000246_1-00.h` starts like this
 
 #include <stdint.h>
 
-char * image_name="CCS811_SW000246_1-00.bin";
-uint8_t image_data[]= {
+const char * image_name="CCS811_SW000246_1-00.bin";
+const uint8_t image_data[] PROGMEM = {
   0x5c, 0x1a, 0xdd, 0xff, 0x15, 0x25, 0xdd, 0x66,   0xfc, 0x88, 0x80, 0x49, 0x02, 0xdc, 0x17, 0x10, 
   0x1f, 0x73, 0x60, 0xae, 0xf4, 0xa0, 0x5d, 0xda,   0xcd, 0xca, 0x94, 0xc6, 0x6b, 0x96, 0x4f, 0xea, 
   0xed, 0xbd, 0xde, 0xc2, 0xea, 0xc1, 0x44, 0x8b,   0xf3, 0x7a, 0x4d, 0x61, 0x22, 0x83, 0xe5, 0xac, 
@@ -49,29 +49,31 @@ I hooked CCS811 with 1.1.0 firmware to the ESP8266.
 The script gave this output:
 ```
 Starting CCS811 flasher
-init: hardware    version: 12
-init: bootloader  version: 1000
-init: application version: 1100
-init: starting flash of 'CCS811_SW000246_1-00.bin' in 5 seconds
+setup: library version: 9
+setup: hardware    version: 12
+setup: bootloader  version: 1000
+setup: application version: 1100
+setup: starting flash of 'CCS811_SW000246_1-00.bin' in 5 seconds
 
-ccs811: flash: successful ping
-ccs811: flash: successful reset
-ccs811: flash: status ok (boot mode): 10
-ccs811: flash: successful erase
-ccs811: flash: status ok (erased): 40
-ccs811: flash: writing ...................................................................
-ccs811: flash: writing ...................................................................
-ccs811: flash: writing ...................................................................
-ccs811: flash: writing ...................................................................
-ccs811: flash: writing ...................................................................
-ccs811: flash: writing ...................................................................
-ccs811: flash: writing ...................................................................
-ccs811: flash: writing ...................................................................
-ccs811: flash: writing ...................................................................
-ccs811: flash: writing ...................................................................
-ccs811: flash: writing ... done
-ccs811: flash: successful verify
-ccs811: flash: status ok (verified): 30
+ccs811: ping ok
+ccs811: reset ok
+ccs811: status (reset1) 10 ok
+ccs811: app-erase ok
+ccs811: status (app-erase) 40 ok
+ccs811: writing 5120 ................................................................ 4608
+ccs811: writing 4608 ................................................................ 4096
+ccs811: writing 4096 ................................................................ 3584
+ccs811: writing 3584 ................................................................ 3072
+ccs811: writing 3072 ................................................................ 2560
+ccs811: writing 2560 ................................................................ 2048
+ccs811: writing 2048 ................................................................ 1536
+ccs811: writing 1536 ................................................................ 1024
+ccs811: writing 1024 ................................................................ 512
+ccs811: writing 512 ................................................................ 0
+ccs811: app-verify ok
+ccs811: status (app-verify) 30 ok
+ccs811: reset2 ok
+ccs811: status (reset2) 10 ok
 
 loop: ended ...
 loop: ended ...
@@ -87,5 +89,61 @@ init: already has 2.0.0
 loop: ended ...
 loop: ended ...
 ```
+
+## A brick?
+I once aborted flashing half way, which means you end up with a CCS811 without a valid app.
+The bootloader is still there, so no worries. 
+This is what a refresh looks like.
+
+```
+Starting CCS811 flasher
+setup: library version: 9
+ccs811: Wrong HW_ID: FD
+setup: CCS811 begin FAILED
+setup: hardware version: FD
+setup: bootloader version: FDFD
+setup: application version: FDFD
+setup: starting flash of 'CCS811_SW000246_1-00.bin' in 5 seconds
+
+ccs811: ping ok
+ccs811: reset ok
+ccs811: status (reset1) 20 ERROR - ignoring
+ccs811: app-erase ok
+ccs811: status (app-erase) 40 ok
+ccs811: writing 5120 ................................................................ 4608
+ccs811: writing 4608 ................................................................ 4096
+ccs811: writing 4096 ................................................................ 3584
+ccs811: writing 3584 ................................................................ 3072
+ccs811: writing 3072 ................................................................ 2560
+ccs811: writing 2560 ................................................................ 2048
+ccs811: writing 2048 ................................................................ 1536
+ccs811: writing 1536 ................................................................ 1024
+ccs811: writing 1024 ................................................................ 512
+ccs811: writing 512 ................................................................ 0
+ccs811: app-verify ok
+ccs811: status (app-verify) 30 ok
+ccs811: reset2 ok
+ccs811: status (reset2) 10 ok
+
+loop: ended ...
+loop: ended ...
+```
+
+
+## Success rate
+Table with successful flashes.
+
+| # | Person            | When         | Lib      | Board           | Host                | IDE         |
+|:-:|:-----------------:|:------------:|:--------:|:---------------:|:-------------------:|:-----------:|
+| 1 | @maarten-pennings | 2018 Dec  5  | v8       | ams eval kit    | ESP8266 (Robotdyn)  |  Arduino    |
+| 2 | @maarten-pennings | 2018 Dec  7  | v8       | CJMCU-811       | ESP8266 (Robotdyn)  |  Arduino    |
+| 3 | @bfaliszek        | 2018 Dec 17  | v8       | CJMCU-811       | ESP8266             |  Arduino    |
+| 4 | @rovale           | 2018 Dec 28  | v8       | CJMCU-811       | ESP32 (LOLIN D32)   |  Arduino    |
+| 5 | @bertrik          | 2019 Jan 03  | v8       | CJMCU-811       | ESP8266 (d1 mini)   |  platformio |
+| 6 | @bfaliszek        | 2019 Jan 04  | v8       | CCS811/HDC1080  | ESP8266             |  Arduino    |
+| 7 | Cees M            | 2019 Jan 13  | v8       | CJMCU-811       | Arduino nano        |  Arduino    |
+| 8 | @maarten-pennings | 2019 Jan 18  | v9       | ams eval kit    | Arduino nano        |  Arduino    |
+| 9 | @maarten-pennings | 2019 Jan 18  | v9       | CJMCU-811       | ESP8266 (Wemos)     |  Arduino    |
+
 
 (end of doc)
