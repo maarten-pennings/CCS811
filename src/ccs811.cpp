@@ -1,14 +1,15 @@
 /*
   ccs811.cpp - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
-  2019 jan 15  v9  Maarten Pennings  Function set_envdata did not write T; flash now uses PROGMEM array; flash now works without app, better PRINT macros, removed warnings
-  2018 dec 06  v8  Maarten Pennings  Added firmware flash routine
-  2018 Dec 04  v7  Maarten Pennings  Added support for older CCS811's (fw 1100)
-  2018 Nov 11  v6  Maarten Pennings  uint16 -> uint16_t, added cast
-  2018 Nov 02  v5  Maarten Pennings  Added clearing of ERROR_ID
-  2018 Oct 23  v4  Maarten Pennings  Added envdata/i2cdelay
-  2018 Oct 21  v3  Maarten Pennings  Fixed bug in begin(), added hw-version
-  2018 Oct 21  v2  Maarten Pennings  Simplified I2C, added version mngt
-  2017 Dec 11  v1  Maarten Pennings  Created
+  2019 jan 22  v10  Maarten Pennings  Added F() on all strings, added get/set_baseline()
+  2019 jan 15   v9  Maarten Pennings  Function set_envdata did not write T; flash now uses PROGMEM array; flash now works without app, better PRINT macros, removed warnings
+  2018 dec 06   v8  Maarten Pennings  Added firmware flash routine
+  2018 Dec 04   v7  Maarten Pennings  Added support for older CCS811's (fw 1100)
+  2018 Nov 11   v6  Maarten Pennings  uint16 -> uint16_t, added cast
+  2018 Nov 02   v5  Maarten Pennings  Added clearing of ERROR_ID
+  2018 Oct 23   v4  Maarten Pennings  Added envdata/i2cdelay
+  2018 Oct 21   v3  Maarten Pennings  Fixed bug in begin(), added hw-version
+  2018 Oct 21   v2  Maarten Pennings  Simplified I2C, added version mngt
+  2017 Dec 11   v1  Maarten Pennings  Created
 */
 
 
@@ -23,10 +24,10 @@
 #define PRINT(s)      Serial.print(s)
 #define PRINTLN2(s,m) Serial.println(s,m)
 #define PRINT2(s,m)   Serial.print(s,m)
-//#define PRINTLN(s)    
-//#define PRINT(s)      
-//#define PRINTLN2(s,m) 
-//#define PRINT2(s,m)   
+//#define PRINTLN(s)
+//#define PRINT(s)
+//#define PRINTLN2(s,m)
+//#define PRINT2(s,m)
 
 
 // Timings
@@ -92,9 +93,9 @@ bool CCS811::begin( void ) {
       ok= i2cwrite(0,0,0);
       _slaveaddr= CCS811_SLAVEADDR_0 + CCS811_SLAVEADDR_1 - _slaveaddr; // swap back
       if( ok ) {
-        PRINTLN("ccs811: wrong slave address, ping successful on other address");
+        PRINTLN(F("ccs811: wrong slave address, ping successful on other address"));
       } else {
-        PRINTLN("ccs811: ping failed (VDD/GND connected? SDA/SCL connected?)");
+        PRINTLN(F("ccs811: ping failed (VDD/GND connected? SDA/SCL connected?)"));
       }
       goto abort_begin;
     }
@@ -102,7 +103,7 @@ bool CCS811::begin( void ) {
     // Invoke a SW reset (bring CCS811 in a know state)
     ok= i2cwrite(CCS811_SW_RESET,4,sw_reset);
     if( !ok ) {
-      PRINTLN("ccs811: reset failed");
+      PRINTLN(F("ccs811: reset failed"));
       goto abort_begin;
     }
     delayMicroseconds(CCS811_WAIT_AFTER_RESET_US);
@@ -110,11 +111,11 @@ bool CCS811::begin( void ) {
     // Check that HW_ID is 0x81
     ok= i2cread(CCS811_HW_ID,1,&hw_id);
     if( !ok ) {
-      PRINTLN("ccs811: HW_ID read failed");
+      PRINTLN(F("ccs811: HW_ID read failed"));
       goto abort_begin;
     }
     if( hw_id!=0x81 ) {
-      PRINT("ccs811: Wrong HW_ID: ");
+      PRINT(F("ccs811: Wrong HW_ID: "));
       PRINTLN2(hw_id,HEX);
       goto abort_begin;
     }
@@ -122,11 +123,11 @@ bool CCS811::begin( void ) {
     // Check that HW_VERSION is 0x1X
     ok= i2cread(CCS811_HW_VERSION,1,&hw_version);
     if( !ok ) {
-      PRINTLN("ccs811: HW_VERSION read failed");
+      PRINTLN(F("ccs811: HW_VERSION read failed"));
       goto abort_begin;
     }
     if( (hw_version&0xF0)!=0x10 ) {
-      PRINT("ccs811: Wrong HW_VERSION: ");
+      PRINT(F("ccs811: Wrong HW_VERSION: "));
       PRINTLN2(hw_version,HEX);
       goto abort_begin;
     }
@@ -134,11 +135,11 @@ bool CCS811::begin( void ) {
     // Check status (after reset, CCS811 should be in boot mode with valid app)
     ok= i2cread(CCS811_STATUS,1,&status);
     if( !ok ) {
-      PRINTLN("ccs811: STATUS read (boot mode) failed");
+      PRINTLN(F("ccs811: STATUS read (boot mode) failed"));
       goto abort_begin;
     }
     if( status!=0x10 ) {
-      PRINT("ccs811: Not in boot mode, or no valid app: ");
+      PRINT(F("ccs811: Not in boot mode, or no valid app: "));
       PRINTLN2(status,HEX);
       goto abort_begin;
     }
@@ -146,7 +147,7 @@ bool CCS811::begin( void ) {
     // Read the application version
     ok= i2cread(CCS811_FW_APP_VERSION,2,app_version);
     if( !ok ) {
-      PRINTLN("ccs811: APP_VERSION read failed");
+      PRINTLN(F("ccs811: APP_VERSION read failed"));
       goto abort_begin;
     }
     _appversion= app_version[0]*256+app_version[1];
@@ -154,7 +155,7 @@ bool CCS811::begin( void ) {
     // Switch CCS811 from boot mode into app mode
     ok= i2cwrite(CCS811_APP_START,0,app_start);
     if( !ok ) {
-      PRINTLN("ccs811: Goto app mode failed");
+      PRINTLN(F("ccs811: Goto app mode failed"));
       goto abort_begin;
     }
     delayMicroseconds(CCS811_WAIT_AFTER_APPSTART_US);
@@ -162,11 +163,11 @@ bool CCS811::begin( void ) {
     // Check if the switch was successful
     ok= i2cread(CCS811_STATUS,1,&status);
     if( !ok ) {
-      PRINTLN("ccs811: STATUS read (app mode) failed");
+      PRINTLN(F("ccs811: STATUS read (app mode) failed"));
       goto abort_begin;
     }
     if( status!=0x90 ) {
-      PRINT("ccs811: Not in app mode, or no valid app: ");
+      PRINT(F("ccs811: Not in app mode, or no valid app: "));
       PRINTLN2(status,HEX);
       goto abort_begin;
     }
@@ -305,10 +306,12 @@ int CCS811::get_errorid(void) {
 }
 
 
+#define HI(u16) ( (uint8_t)( ((u16)>>8)&0xFF ) )
+#define LO(u16) ( (uint8_t)( ((u16)>>0)&0xFF ) )
+
+
 // Writes t and h to ENV_DATA (see datasheet for format). Returns false on I2C problems.
 bool CCS811::set_envdata(uint16_t t, uint16_t h) {
-  #define HI(u16) ( (uint8_t)( ((u16)>>8)&0xFF ) )
-  #define LO(u16) ( (uint8_t)( ((u16)>>0)&0xFF ) )
   uint8_t envdata[]= { HI(h), LO(h), HI(t), LO(t) };
   wake_up();
   // Serial.print(" [T="); Serial.print(t); Serial.print(" H="); Serial.print(h); Serial.println("] ");
@@ -334,6 +337,27 @@ bool CCS811::set_envdata210(uint16_t t, uint16_t h) {
 }
 
 
+// Reads (encoded) baseline from BASELINE (see datasheet). Returns false on I2C problems.
+bool CCS811::get_baseline(uint16_t *baseline) {
+  uint8_t buf[2];
+  wake_up();
+  bool ok = i2cread(CCS811_BASELINE,2,buf);
+  wake_down();
+  *baseline= (buf[0]<<8) + buf[1];
+  return ok;
+}
+
+
+// Writes (encoded) baseline to BASELINE (see datasheet). Returns false on I2C problems.
+bool CCS811::set_baseline(uint16_t baseline) {
+  uint8_t buf[]= { HI(baseline), LO(baseline) };
+  wake_up();
+  bool ok = i2cwrite(CCS811_BASELINE,2,buf);
+  wake_down();
+  return ok;
+}
+
+
 // Flashes the firmware of the CCS811 with size bytes from image - image _must_ be in PROGMEM
 bool CCS811::flash(const uint8_t * image, int size) {
   uint8_t sw_reset[]=   {0x11,0xE5,0x72,0x8A};
@@ -345,68 +369,68 @@ bool CCS811::flash(const uint8_t * image, int size) {
   wake_up();
 
     // Try to ping CCS811 (can we reach CCS811 via I2C?)
-    PRINT("ccs811: ping ");
+    PRINT(F("ccs811: ping "));
     ok= i2cwrite(0,0,0);
     if( !ok ) {
-      PRINTLN("FAILED");
+      PRINTLN(F("FAILED"));
       goto abort_begin;
     }
-    PRINTLN("ok");
+    PRINTLN(F("ok"));
 
     // Invoke a SW reset (bring CCS811 in a know state)
-    PRINT("ccs811: reset ");
+    PRINT(F("ccs811: reset "));
     ok= i2cwrite(CCS811_SW_RESET,4,sw_reset);
     if( !ok ) {
-      PRINTLN("FAILED");
+      PRINTLN(F("FAILED"));
       goto abort_begin;
     }
     delayMicroseconds(CCS811_WAIT_AFTER_RESET_US);
-    PRINTLN("ok");
+    PRINTLN(F("ok"));
 
     // Check status (after reset, CCS811 should be in boot mode with or without valid app)
-    PRINT("ccs811: status (reset1) ");
+    PRINT(F("ccs811: status (reset1) "));
     ok= i2cread(CCS811_STATUS,1,&status);
     if( !ok ) {
-      PRINTLN("FAILED");
+      PRINTLN(F("FAILED"));
       goto abort_begin;
     }
     PRINT2(status,HEX);
-    PRINT(" ");
+    PRINT(F(" "));
     if( status!=0x00 && status!=0x10 ) {
-      PRINTLN("ERROR - ignoring"); // Seems to happens when there is no valid app
+      PRINTLN(F("ERROR - ignoring")); // Seems to happens when there is no valid app
     } else {
-      PRINTLN("ok");
+      PRINTLN(F("ok"));
     }
 
     // Invoke app erase
-    PRINT("ccs811: app-erase ");
+    PRINT(F("ccs811: app-erase "));
     ok= i2cwrite(CCS811_APP_ERASE,4,app_erase);
     if( !ok ) {
-      PRINTLN("FAILED");
+      PRINTLN(F("FAILED"));
       goto abort_begin;
     }
     delay(CCS811_WAIT_AFTER_APPERASE_MS);
-    PRINTLN("ok");
+    PRINTLN(F("ok"));
 
     // Check status (CCS811 should be in boot mode without valid app, with erase completed)
-    PRINT("ccs811: status (app-erase) ");
+    PRINT(F("ccs811: status (app-erase) "));
     ok= i2cread(CCS811_STATUS,1,&status);
     if( !ok ) {
-      PRINTLN("FAILED");
+      PRINTLN(F("FAILED"));
       goto abort_begin;
     }
     PRINT2(status,HEX);
-    PRINT(" ");
+    PRINT(F(" "));
     if( status!=0x40 ) {
-      PRINTLN("ERROR");
+      PRINTLN(F("ERROR"));
       goto abort_begin;
     }
-    PRINTLN("ok");
+    PRINTLN(F("ok"));
 
     // Write all blocks
     count= 0;
     while( size>0 ) {
-        if( count%64==0 ) { PRINT("ccs811: writing "); PRINT(size); PRINT(" "); }
+        if( count%64==0 ) { PRINT(F("ccs811: writing ")); PRINT(size); PRINT(F(" ")); }
         int len= size<8 ? size : 8;
         // Copy PROGMEM to RAM
         uint8_t ram[8];
@@ -414,67 +438,67 @@ bool CCS811::flash(const uint8_t * image, int size) {
         // Send 8 bytes from RAM to CCS811
         ok= i2cwrite(CCS811_APP_DATA,len, ram);
         if( !ok ) {
-          PRINTLN("ccs811: app data failed");
+          PRINTLN(F("ccs811: app data failed"));
           goto abort_begin;
         }
-        PRINT(".");
+        PRINT(F("."));
         delay(CCS811_WAIT_AFTER_APPDATA_MS);
         image+= len;
         size-= len;
         count++;
-        if( count%64==0 ) { PRINT(" "); PRINTLN(size); }
+        if( count%64==0 ) { PRINT(F(" ")); PRINTLN(size); }
     }
-    if( count%64!=0 ) { PRINTLN(""); }
+    if( count%64!=0 ) { PRINT(F(" ")); PRINTLN(size); }
 
     // Invoke app verify
-    PRINT("ccs811: app-verify ");
+    PRINT(F("ccs811: app-verify "));
     ok= i2cwrite(CCS811_APP_VERIFY,0,app_verify);
     if( !ok ) {
-      PRINTLN("FAILED");
+      PRINTLN(F("FAILED"));
       goto abort_begin;
     }
     delay(CCS811_WAIT_AFTER_APPVERIFY_MS);
-    PRINTLN("ok");
+    PRINTLN(F("ok"));
 
     // Check status (CCS811 should be in boot mode with valid app, and erased and verified)
-    PRINT("ccs811: status (app-verify) ");
+    PRINT(F("ccs811: status (app-verify) "));
     ok= i2cread(CCS811_STATUS,1,&status);
     if( !ok ) {
-      PRINTLN("FAILED");
+      PRINTLN(F("FAILED"));
       goto abort_begin;
     }
     PRINT2(status,HEX);
-    PRINT(" ");
+    PRINT(F(" "));
     if( status!=0x30 ) {
-      PRINTLN("ERROR");
+      PRINTLN(F("ERROR"));
       goto abort_begin;
     }
-    PRINTLN("ok");
+    PRINTLN(F("ok"));
 
     // Invoke a second SW reset (clear flashing flags)
-    PRINT("ccs811: reset2 ");
+    PRINT(F("ccs811: reset2 "));
     ok= i2cwrite(CCS811_SW_RESET,4,sw_reset);
     if( !ok ) {
-      PRINTLN("FAILED");
+      PRINTLN(F("FAILED"));
       goto abort_begin;
     }
     delayMicroseconds(CCS811_WAIT_AFTER_RESET_US);
-    PRINTLN("ok");
+    PRINTLN(F("ok"));
 
     // Check status (after reset, CCS811 should be in boot mode with valid app)
-    PRINT("ccs811: status (reset2) ");
+    PRINT(F("ccs811: status (reset2) "));
     ok= i2cread(CCS811_STATUS,1,&status);
     if( !ok ) {
-      PRINTLN("FAILED");
+      PRINTLN(F("FAILED"));
       goto abort_begin;
     }
     PRINT2(status,HEX);
-    PRINT(" ");
+    PRINT(F(" "));
     if( status!=0x10 ) {
-      PRINTLN("ERROR");
+      PRINTLN(F("ERROR"));
       goto abort_begin;
     }
-    PRINTLN("ok");
+    PRINTLN(F("ok"));
 
   // CCS811 back to sleep
   wake_down();
