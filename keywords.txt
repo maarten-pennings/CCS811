@@ -30,6 +30,8 @@ application_version	KEYWORD2
 geterror_id	KEYWORD2
 set_envdata	KEYWORD2
 set_envdata210	KEYWORD2
+get_baseline	KEYWORD2
+set_baseline	KEYWORD2
 flash	KEYWORD2
 
 set_i2cdelay	KEYWORD2
