@@ -6,7 +6,7 @@ Arduino library for the CCS811 digital gas sensor for monitoring indoor air qual
 This project is an Arduino *library*. It implements a driver for the CCS811.
 This chip is a indoor air quality sensor module with an I2C interface.
 
-The code has been tested (using `ccs811basic`) with
+The code has been tested with
  - [NodeMCU (ESP8266)](https://www.aliexpress.com/item/NodeMCU-V3-Lua-WIFI-module-integration-of-ESP8266-extra-memory-32M-flash-USB-serial-CP2102/32779738528.html)
  - [Arduino pro mini](https://www.aliexpress.com/item/ProMini-ATmega328P-3-3V-Compatible-for-Arduino-Pro-Mini/32525927539.html)
  - [Arduino nano](https://www.aliexpress.com/item/Nano-CH340-ATmega328P-MicroUSB-Compatible-for-Arduino-Nano-V3/32572612009.html)
@@ -14,7 +14,7 @@ The code has been tested (using `ccs811basic`) with
 Note that the CCS811 requires a supply voltage of 1.8V .. 3.6V.
 So, 3.3V is ok, but *do not use a 5V board*.
 The Nano has 3v3 supply, but runs I2C on 5V. This does seem to work.
-Also note that the minimum supply voltage is 1.8V and should not drop below this value for reliable device operation.
+Also note that the minimum supply voltage of the CCS811 is 1.8V and should not drop below this value for reliable device operation.
 
 
 ## Links
@@ -50,7 +50,7 @@ Installation steps
 
 
 ### Build an example
-To build an example sketch
+To build an example sketch (just building, for running it we need to wire it, an dthat is the next step):
  - (Re)start Arduino.
  - Open File > Example > Examples from Custom Libraries > CCS811 > ccs811basic.
  - Make sure Tools > Board lists the correct board.
@@ -155,8 +155,8 @@ An alternative is a CCS811-only board (without and ENS210). Wire it as follows
 ![Wiring CCS811](wire-ccs811only.jpg)
 
 
-## Flash an example
-To build an example sketch
+## Run an example
+To build, flash and run an example sketch
  - (Re)start Arduino.
  - Open File > Example > Examples from Custom Libraries > CCS811 > ccs811basic.
  - Make sure Tools > Board lists the correct board.
@@ -165,10 +165,11 @@ To build an example sketch
  - Enjoy the output, which should be like this for `ccs811basic`:
 
      ```Text
-     Starting CCS811 basic demo
-     init: hardware    version: 12
-     init: bootloader  version: 1000
-     init: application version: 2000
+     steup: Starting CCS811 basic demo
+     setup: ccs811 lib  version: 10
+     setup: hardware    version: 12
+     setup: bootloader  version: 1000
+     setup: application version: 2000
      CCS811: waiting for (new) data
      CCS811: waiting for (new) data
      CCS811: waiting for (new) data
@@ -184,11 +185,10 @@ To build an example sketch
      CCS811: eco2=405 ppm  etvoc=0 ppb  
      CCS811: eco2=405 ppm  etvoc=0 ppb
      ```
- - It is normal that early measurements have `errstat=90=--vhxmrwF--Ad-ie`, i.e. STATUS.DATA_READY clear
-   (the lowercase `d`); the internal gas library needs some data points to startup.
+ - It is normal that early measurements no data yet ; the internal gas library needs some data points to startup.
 
  - At the time of writing this application, `application version: 2000` is available on the ams.com website.
    You might still have version 1100. To Flash it, you need the [CCS811 eval kit](https://ams.com/ccs811evalkit).
-   As an alternative, you could try the [flash example](examples/ccs811flash) - on your own risk.
+   As an alternative, you could try my [flash example](examples/ccs811flash) - on your own risk.
  
 (end of doc)
