@@ -10,6 +10,7 @@ The code has been tested with
  - [NodeMCU (ESP8266)](https://www.aliexpress.com/item/NodeMCU-V3-Lua-WIFI-module-integration-of-ESP8266-extra-memory-32M-flash-USB-serial-CP2102/32779738528.html)
  - [Arduino pro mini](https://www.aliexpress.com/item/ProMini-ATmega328P-3-3V-Compatible-for-Arduino-Pro-Mini/32525927539.html)
  - [Arduino nano](https://www.aliexpress.com/item/Nano-CH340-ATmega328P-MicroUSB-Compatible-for-Arduino-Nano-V3/32572612009.html)
+ - [ESP32](https://www.aliexpress.com/item/ESP-32S-ESP-32-Development-Board-WiFi-Wireless-Bluetooth-Antenna-Module-For-Arduino-2-4GHz-Dual/32827838651.html)
 
 Note that the CCS811 requires a supply voltage of 1.8V .. 3.6V.
 So, 3.3V is ok, but *do not use a 5V board*.
@@ -79,7 +80,7 @@ The CCS811 has several pins:
 
 
 ### Tested boards
-This library has been tested with three boards.
+This library has been tested with several boards.
 
 Most micro controllers seem to have built-in pull-ups for I2C.
 However, those pull-ups are typically activated by `Wire.begin()`.
@@ -89,8 +90,9 @@ This might cause unwanted behavior on the slaves.
 It is recommended to add 10k pull-ups on both SDA and SCL.
 
 
-#### ESP8266
-For the NodeMCU (ESP8266), connect as follows (I did not use pull-ups, presumably they are inside the MCU)
+### ESP8266
+For the NodeMCU (ESP8266), connect as follows (I did not use pull-ups, presumably they are inside the MCU).
+The SDA and SCL could be mapped to other pins, but these are the default in the Arduino wire library.
 
 | CCS811  |  ESP8266  |
 |:-------:|:---------:|
@@ -102,23 +104,18 @@ For the NodeMCU (ESP8266), connect as follows (I did not use pull-ups, presumabl
 
 ![wiring ESP8266 NodeMCU](wire-esp.jpg)
 
-Unfortunately, the CCS811 uses clock stretching, and the I2C sw library in the ESP8266
+Unfortunately, the CCS811 uses clock stretching, and the I2C sw library in the ESP8266 (up to version 2.4.2)
 can not handle this in all cases, therefore this library add waits (see `set_i2cdelay()` in `ccs811.h`).
 
 However, the real solution is to fix the clock stretch problem in the ESP8266 core libraries.
-I have submitted an [issue](https://github.com/esp8266/Arduino/issues/5340) for that.
-You can do this yourself: open the directory with core libaries (on my pc they are in 
-`C:\Users\mpen\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.2\cores\esp8266`) 
-and edit `core_esp8266_si2c.c`. You need to add one line to both functions: `twi_writeTo()` and `twi_readFrom()`. 
-This line needs to be added after `SCL_HIGH()`, it implements a wait as long as the slave stretches the clock.
-   ```
-   unsigned int t=0; while (SCL_READ() == 0 && (t++) < twi_clockStretchLimit); // Clock stretching
-   ```
-See this [screen shot](ESP8266-AddClockStretch.png) for the change I made.
+I have submitted an [issue](https://github.com/esp8266/Arduino/issues/5340) for that, which is included 
+in core library version 2.5.0. I submitted and another [issue](https://github.com/esp8266/Arduino/issues/5528), 
+which is not yet released. My suggested do-it-yourself solution is described 
+[here](https://github.com/maarten-pennings/I2C-tool/blob/master/I2Ctest8266/README.md#how-to-fix)
 
 
-#### Pro Mini
-For the Pro mini (do *not* use a 5V board), connect as follows  (I did not use pull-ups, presumably they are inside the MCU)
+### Pro Mini
+For the Pro mini (do *not* use a 5V board), connect as follows  (I did not use pull-ups, presumably they are inside the MCU).
 
 | CCS811  |  Pro mini |
 |:-------:|:---------:|
@@ -131,8 +128,9 @@ For the Pro mini (do *not* use a 5V board), connect as follows  (I did not use p
 ![wiring pro mini](wire-promini.jpg)
 
 
-#### Arduino Nano
-For the Arduino Nano, connect as follows  (I did not use pull-ups, presumably they are inside the MCU)
+### Arduino Nano
+The Nano has 3v3 supply, but runs I2C on 5V. This does seem to work, but might be risky for the CCS811.
+For the Arduino Nano, connect as follows  (I did not use pull-ups, presumably they are inside the MCU).
 
 | CCS811  |    Nano   |
 |:-------:|:---------:|
@@ -145,7 +143,28 @@ For the Arduino Nano, connect as follows  (I did not use pull-ups, presumably th
 ![wiring nano](wire-nanov3.jpg)
 
 
-#### CCS811
+### ESP32
+For the ES32, connect as follows (I did not use pull-ups, presumably they are inside the MCU).
+The SDA and SCL could be mapped to other pins, but these are the default in the Arduino wire library.
+
+| CCS811  |   ESP32   |
+|:-------:|:---------:|
+|   VDD   |    3V3    |
+|   GND   |    GND    |
+|   SDA   |     21    |
+|   SCL   |     22    |
+| nWAKE   | 23 or GND |
+
+![wiring ESP32](wire-esp32.jpg)
+
+The ESP32 has, unlike its predecessor ESP8266, an I2C interface in hardware. 
+However, the Arduino library version 1.0.0 has a 
+[bug](https://github.com/platformio/platform-espressif32/issues/126): 
+it does not support repeated start conditions. 
+However, this seems to be fixed in release 1.0.1, so use that.
+
+
+### CCS811
 Connect the official ams CCS811 module, which also has an ENS210, as follows
 
 ![wiring CCS811](wire-ccs811.jpg)
@@ -165,7 +184,7 @@ To build, flash and run an example sketch
  - Enjoy the output, which should be like this for `ccs811basic`:
 
      ```Text
-     steup: Starting CCS811 basic demo
+     setup: Starting CCS811 basic demo
      setup: ccs811 lib  version: 10
      setup: hardware    version: 12
      setup: bootloader  version: 1000
@@ -185,10 +204,10 @@ To build, flash and run an example sketch
      CCS811: eco2=405 ppm  etvoc=0 ppb  
      CCS811: eco2=405 ppm  etvoc=0 ppb
      ```
- - It is normal that early measurements no data yet ; the internal gas library needs some data points to startup.
+ - It is normal that early measurements do not provide data yet; the internal gas library needs some data points to startup.
 
  - At the time of writing this application, `application version: 2000` is available on the ams.com website.
-   You might still have version 1100. To Flash it, you need the [CCS811 eval kit](https://ams.com/ccs811evalkit).
+   You might still have version 1100. To flash version 2000, you need the [CCS811 eval kit](https://ams.com/ccs811evalkit).
    As an alternative, you could try my [flash example](examples/ccs811flash) - on your own risk.
  
 (end of doc)
