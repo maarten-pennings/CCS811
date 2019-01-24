@@ -6,16 +6,16 @@ Arduino library for the CCS811 digital gas sensor for monitoring indoor air qual
 This project is an Arduino *library*. It implements a driver for the CCS811.
 This chip is a indoor air quality sensor module with an I2C interface.
 
-The code has been tested with
- - [NodeMCU (ESP8266)](https://www.aliexpress.com/item/NodeMCU-V3-Lua-WIFI-module-integration-of-ESP8266-extra-memory-32M-flash-USB-serial-CP2102/32779738528.html)
- - [Arduino pro mini](https://www.aliexpress.com/item/ProMini-ATmega328P-3-3V-Compatible-for-Arduino-Pro-Mini/32525927539.html)
- - [Arduino nano](https://www.aliexpress.com/item/Nano-CH340-ATmega328P-MicroUSB-Compatible-for-Arduino-Nano-V3/32572612009.html)
- - [ESP32](https://www.aliexpress.com/item/ESP-32S-ESP-32-Development-Board-WiFi-Wireless-Bluetooth-Antenna-Module-For-Arduino-2-4GHz-Dual/32827838651.html)
+This library includes a CCS811 driver and some [examples](examples).
+When starting, use the example [ccs811basic](examples/ccs811basic).
+It is the most simple one, but it helps in getting the wiring correct: the I2C wires, the ADDR select pin and the nWAKE pin.
+There is also a full fledged example: it reads environmental data from ENS210, writes that to the CCS811, 
+reads the gas data from the CCS811, and then uploads that to ThingSpeak.
 
-Note that the CCS811 requires a supply voltage of 1.8V .. 3.6V.
-So, 3.3V is ok, but *do not use a 5V board*.
-The Nano has 3v3 supply, but runs I2C on 5V. This does seem to work.
-Also note that the minimum supply voltage of the CCS811 is 1.8V and should not drop below this value for reliable device operation.
+If you have an old CCS811, you might want to update its firmware. 
+This library contains an example for that too: [ccs811flash](examples/ccs811flash).
+
+The rest of this page tells how to get started on the software (install library) and hardware (wiring).
 
 
 ## Links
@@ -29,6 +29,8 @@ The CCS811 is made by [ams](https://www.ams.com).
 
 
 ## Software
+This section gives a quick overview of how to install this library and compile one of its 
+examples ([ccs811basic](examples/ccs811basic)). The end of this file shows an actual run of that example.
 
 ### Prerequisites
 It is assumed that
@@ -51,7 +53,7 @@ Installation steps
 
 
 ### Build an example
-To build an example sketch (just building, for running it we need to wire it, an dthat is the next step):
+To build an example sketch (just building, for running it we need to wire it, and that is the next step):
  - (Re)start Arduino.
  - Open File > Example > Examples from Custom Libraries > CCS811 > ccs811basic.
  - Make sure Tools > Board lists the correct board.
@@ -59,6 +61,24 @@ To build an example sketch (just building, for running it we need to wire it, an
 
 
 ## Hardware
+This library has been tested with
+ - [NodeMCU (ESP8266)](https://www.aliexpress.com/item/NodeMCU-V3-Lua-WIFI-module-integration-of-ESP8266-extra-memory-32M-flash-USB-serial-CP2102/32779738528.html)
+ - [Arduino Pro Mini](https://www.aliexpress.com/item/ProMini-ATmega328P-3-3V-Compatible-for-Arduino-Pro-Mini/32525927539.html)
+ - [Arduino Nano](https://www.aliexpress.com/item/Nano-CH340-ATmega328P-MicroUSB-Compatible-for-Arduino-Nano-V3/32572612009.html)
+ - [ESP32](https://www.aliexpress.com/item/ESP-32S-ESP-32-Development-Board-WiFi-Wireless-Bluetooth-Antenna-Module-For-Arduino-2-4GHz-Dual/32827838651.html)
+
+Note that the CCS811 requires a supply voltage of 1.8V .. 3.6V.
+So, 3.3V is ok, but *do not use a 5V board*.
+The Nano has 3v3 supply, but runs I2C on 5V. This does seem to work, but might be risky for the CCS811.
+Also note that the minimum supply voltage of the CCS811 is 1.8V and should not drop below this value for
+reliable device operation.
+
+Most micro controllers seem to have built-in pull-ups for I2C.
+However, those pull-ups are typically activated by `Wire.begin()`.
+Therefore, between power-up (or reset) and `Wire.begin()`, the I2C lines might not be high.
+This might cause unwanted behavior on the slaves. 
+It is recommended to add 10k pull-ups on both SDA and SCL.
+
 
 ### Wiring
 The CCS811 has several pins:
@@ -77,17 +97,6 @@ The CCS811 has several pins:
    If your board has no ADDR pin, then likely it has the pin tied to GND, selecting 0x5A.
    The `ccs811.begin()` uses the address passed in the constructor, but if the other address does work, 
    it prints this on Serial.
-
-
-### Tested boards
-This library has been tested with several boards.
-
-Most micro controllers seem to have built-in pull-ups for I2C.
-However, those pull-ups are typically activated by `Wire.begin()`.
-Therefore, between power-up (or reset) and `Wire.begin()`, the I2C lines might not be high.
-This might cause unwanted behavior on the slaves.
-
-It is recommended to add 10k pull-ups on both SDA and SCL.
 
 
 ### ESP8266
@@ -115,7 +124,7 @@ which is not yet released. My suggested do-it-yourself solution is described
 
 
 ### Pro Mini
-For the Pro mini (do *not* use a 5V board), connect as follows  (I did not use pull-ups, presumably they are inside the MCU).
+For the Pro Mini (do *not* use a 5V board), connect as follows  (I did not use pull-ups, presumably they are inside the MCU).
 
 | CCS811  |  Pro mini |
 |:-------:|:---------:|
