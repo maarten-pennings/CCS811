@@ -64,12 +64,12 @@ To build an example sketch (just building, for running it we need to wire it, an
 This library has been tested with
  - [NodeMCU (ESP8266)](https://www.aliexpress.com/item/NodeMCU-V3-Lua-WIFI-module-integration-of-ESP8266-extra-memory-32M-flash-USB-serial-CP2102/32779738528.html)
  - [Arduino Pro Mini](https://www.aliexpress.com/item/ProMini-ATmega328P-3-3V-Compatible-for-Arduino-Pro-Mini/32525927539.html)
- - [Arduino Nano](https://www.aliexpress.com/item/Nano-CH340-ATmega328P-MicroUSB-Compatible-for-Arduino-Nano-V3/32572612009.html)
+ - [Arduino Nano](https://www.aliexpress.com/item/Nano-CH340-ATmega328P-MicroUSB-Compatible-for-Arduino-Nano-V3/32572612009.html) see [WARNING] below
  - [ESP32](https://www.aliexpress.com/item/ESP-32S-ESP-32-Development-Board-WiFi-Wireless-Bluetooth-Antenna-Module-For-Arduino-2-4GHz-Dual/32827838651.html)
 
 Note that the CCS811 requires a supply voltage of 1.8V .. 3.6V.
 So, 3.3V is ok, but *do not use a 5V board*.
-The Nano has 3v3 supply, but runs I2C on 5V. This does seem to work, but might be risky for the CCS811.
+The Nano has 3v3 out pin, but runs I2C on 5V. This poses a risk for the CCS811. 
 Also note that the minimum supply voltage of the CCS811 is 1.8V and should not drop below this value for
 reliable device operation.
 
@@ -150,6 +150,10 @@ For the Arduino Nano, connect as follows  (I did not use pull-ups, presumably th
 | nWAKE   | D3 or GND |
 
 ![wiring nano](wire-nanov3.jpg)
+
+[WARNING] The Nano board has a 3v3 supply pin, but the micro controller itself runs on 5V. 
+Since the CCS811 datasheet specifies that logic high is at most 1.0 x VDD (i.e. 3v3), 
+connecting the CCS811 to the I2C pins of the Nano (at 5V) is a risk for the CCS811.
 
 
 ### ESP32
