@@ -17,6 +17,9 @@ CCS811 ccs811(D3); // nWAKE on D3
 // nWAKE not controlled via Arduino host, so connect CCS811.nWAKE to GND
 //CCS811 ccs811; 
 
+// Wiring for ESP32 NodeMCU boards: VDD to 3V3, GND to GND, SDA to 21, SCL to 22, nWAKE to D3 (or GND)
+//CCS811 ccs811(23); // nWAKE on 23
+
 
 void setup() {
   // Enable serial
