@@ -322,7 +322,7 @@ bool CCS811::set_envdata(uint16_t t, uint16_t h) {
 }
 
 // Writes temperature and relativeHumidity (with temperature in C and humidity as percent) to ENV_DATA . Returns false on I2C problems.
-bool CCS811::set_envdataDHT(int temperature, int relativeHumidity) {
+bool CCS811::set_envdataDHT(float temperature, float relativeHumidity) {
   // Based on: https://github.com/sparkfun/SparkFun_CCS811_Arduino_Library/blob/master/src/SparkFunCCS811.cpp
   	//Check for invalid temperatures
 	temperature = max(-25,min(temperature,50));
