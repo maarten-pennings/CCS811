@@ -1,5 +1,6 @@
 /*
   ccs811.cpp - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2019 feb 02  v11  Erwin Ried        Added envdata with C and % as parameters
   2019 jan 22  v10  Maarten Pennings  Added F() on all strings, added get/set_baseline()
   2019 jan 15   v9  Maarten Pennings  Function set_envdata did not write T; flash now uses PROGMEM array; flash now works without app, better PRINT macros, removed warnings
   2018 dec 06   v8  Maarten Pennings  Added firmware flash routine
@@ -320,6 +321,53 @@ bool CCS811::set_envdata(uint16_t t, uint16_t h) {
   return ok;
 }
 
+// Writes temperature and relativeHumidity (with temperature in C and humidity as percent) to ENV_DATA . Returns false on I2C problems.
+bool CCS811::set_envdataDHT(int temperature, int relativeHumidity) {
+  // Based on: https://github.com/sparkfun/SparkFun_CCS811_Arduino_Library/blob/master/src/SparkFunCCS811.cpp
+  	//Check for invalid temperatures
+	temperature = max(-25,min(temperature,50));
+	
+	//Check for invalid humidity
+	relativeHumidity = max(0,min(relativeHumidity,100));
+	
+	uint32_t rH = relativeHumidity * 1000; //42.348 becomes 42348
+	uint32_t temp = temperature * 1000; //23.2 becomes 23200
+
+	byte envdata[4];
+
+	//Split value into 7-bit integer and 9-bit fractional
+	
+	//Incorrect way from datasheet.
+	//envData[0] = ((rH % 1000) / 100) > 7 ? (rH / 1000 + 1) << 1 : (rH / 1000) << 1;
+	//envData[1] = 0; //CCS811 only supports increments of 0.5 so bits 7-0 will always be zero
+	//if (((rH % 1000) / 100) > 2 && (((rH % 1000) / 100) < 8))
+	//{
+	//	envData[0] |= 1; //Set 9th bit of fractional to indicate 0.5%
+	//}
+	
+	//Correct rounding. See issue 8: https://github.com/sparkfun/Qwiic_BME280_CCS811_Combo/issues/8
+	envdata[0] = (rH + 250) / 500;
+	envdata[1] = 0; //CCS811 only supports increments of 0.5 so bits 7-0 will always be zero
+
+	temp += 25000; //Add the 25C offset
+	//Split value into 7-bit integer and 9-bit fractional
+	//envData[2] = ((temp % 1000) / 100) > 7 ? (temp / 1000 + 1) << 1 : (temp / 1000) << 1;
+	//envData[3] = 0;
+	//if (((temp % 1000) / 100) > 2 && (((temp % 1000) / 100) < 8))
+	//{
+	//	envData[2] |= 1;  //Set 9th bit of fractional to indicate 0.5C
+	//}
+	
+	//Correct rounding
+	envdata[2] = (temp + 250) / 500;
+	envdata[3] = 0;
+
+  wake_up();
+  // Serial.print(" [T="); Serial.print(t); Serial.print(" H="); Serial.print(h); Serial.println("] ");
+  bool ok = i2cwrite(CCS811_ENV_DATA,4,envdata);
+  wake_down();
+  return ok;
+}
 
 // Writes t and h (in ENS210 format) to ENV_DATA. Returns false on I2C problems.
 bool CCS811::set_envdata210(uint16_t t, uint16_t h) {
