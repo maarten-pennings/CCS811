@@ -334,6 +334,10 @@ uint16_t to_uint16(float v){
 }
 
 bool CCS811::set_envdata(float t, float h) {
+  // Ensure values are within reasonable range
+  t = max((float) -25, min(t, (float) 50));
+  h = max((float) 0, min(h, (float) 100));
+
   uint16_t t16 = to_uint16(t + 25); // Offset +25 degrees (see datasheet)
   uint16_t h16 = to_uint16(h);
 
