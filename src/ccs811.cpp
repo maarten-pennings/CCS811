@@ -320,26 +320,13 @@ bool CCS811::set_envdata(uint16_t t, uint16_t h) {
   return ok;
 }
 
-uint16_t to_uint16(float v){
-  // Separate the integer part and the decimal part
-  double int_part;
-  double dec_part = modf((double) v, &int_part);
-
-  // Integer part is in put in bit 15-9 and decimal in bit 8-0. Map the decimals to 9 bits with MSB
-  // as 1/2 and LSB as 1/512 (see datasheet)
-  uint16_t high = (uint16_t) int_part << 9;
-  uint16_t low = (uint16_t) (dec_part * 512);
-
-  return high + low;
-}
-
 bool CCS811::set_envdata(float t, float h) {
   // Ensure values are within reasonable range
   t = max((float) -25, min(t, (float) 50));
   h = max((float) 0, min(h, (float) 100));
 
-  uint16_t t16 = to_uint16(t + 25); // Offset +25 degrees (see datasheet)
-  uint16_t h16 = to_uint16(h);
+  uint16_t t16 = (t + 25) * 512; // Offset +25 degrees (see datasheet)
+  uint16_t h16 = h * 512;
 
   return CCS811::set_envdata(t16, h16);
 }
