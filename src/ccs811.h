@@ -75,6 +75,7 @@ class CCS811 {
     int  application_version(void);                                           // Gets version of the CCS811 application (returns -1 on I2C failure)
     int  get_errorid(void);                                                   // Gets the ERROR_ID [same as 'err' part of 'errstat' in 'read'] (returns -1 on I2C failure)
     bool set_envdata(uint16_t t, uint16_t h);                                 // Writes t and h to ENV_DATA (see datasheet for format). Returns false on I2C problems.
+    bool set_envdata(float t, float h);                                       // Convert and write t and h to ENV_DATA. Returns false on I2C problems.
     bool set_envdata210(uint16_t t, uint16_t h);                              // Writes t and h (in ENS210 format) to ENV_DATA. Returns false on I2C problems.
     bool get_baseline(uint16_t *baseline);                                    // Reads (encoded) baseline from BASELINE. Returns false on I2C problems. Get it, just before power down (but only when sensor was on at least 20min) - see CCS811_AN000370
     bool set_baseline(uint16_t baseline);                                     // Writes (encoded) baseline to BASELINE. Returns false on I2C problems. Set it, after power up (and after 20min)
