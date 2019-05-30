@@ -19,7 +19,7 @@ ccs811	KEYWORD1
 # Methods and Functions (KEYWORD2)
 #######################################
 begin	KEYWORD2
-start KEYWORD2
+start	KEYWORD2
 read	KEYWORD2
 errstat_str	KEYWORD2
 
