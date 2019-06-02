@@ -96,7 +96,7 @@ loop: ended ...
 ## A brick?
 I once aborted flashing half way, which means you end up with a CCS811 without a valid app.
 The bootloader is still there, so no worries. 
-This is what a refresh looks like.
+Just run the flash app again.
 
 ```
 Starting CCS811 flasher
