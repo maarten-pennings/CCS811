@@ -7,6 +7,9 @@ YOUR DEVICE DURING THE PROCESS OF FOLLOWING/USING THIS EXAMPLE.
 
 The risk is low, since you only flash the application firmware, not the boot loader.
 
+Note that from version 2.0.0 ams has this change note "Removed NTC functionality. Pin 8 not measured and left undriven.".
+So if your application uses the onboard thermistor, do not upgrade from 1.x.x to 2.x.x.
+
 
 ## Introduction
 The CCS811 has an internal micro controller with a boot loader and the gas application.
