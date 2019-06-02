@@ -147,6 +147,7 @@ Table with successful flashes.
 |  7 | Kees M            | 2019 Jan 13  | v8       | CJMCU-811       | Arduino nano        |  Arduino    |
 |  8 | @maarten-pennings | 2019 Jan 18  | v9       | ams eval kit    | Arduino nano        |  Arduino    |
 |  9 | @maarten-pennings | 2019 Jan 18  | v9       | CJMCU-811       | ESP8266 (Wemos)     |  Arduino    |
-| 10 | @bill-orange      | 2019 May 31  | v10      | Adafruit CCS811 | unknown             |  unknown    |
+| 10 | @hmax42           | 2019 Mar 14  | v10      | CJMCU-811       | ESP8266             |  unknown    |
+| 11 | @bill-orange      | 2019 May 31  | v10      | Adafruit CCS811 | unknown             |  unknown    |
 
 (end of doc)
