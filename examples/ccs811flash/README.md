@@ -5,7 +5,7 @@ DISCLAIMER: FLASHING FIRMWARE CARRIES THE RISK OF BRICKING YOUR CCS811.
 I CANNOT BE HELD RESPONSIBLE IN THE EVENT SOMETHING GOES WRONG WITH 
 YOUR DEVICE DURING THE PROCESS OF FOLLOWING/USING THIS EXAMPLE. 
 
-The risk is low, since you only flash the application firmware, not the boot loader.
+The risk is low, since you only flash the application firmware, not the boot loader (see e.g. [brick](#a-brick) below).
 
 Note that from version 2.0.0 ams has this change note "Removed NTC functionality. Pin 8 not measured and left undriven.".
 So if your application uses the onboard thermistor, do not upgrade from 1.x.x to 2.x.x.
