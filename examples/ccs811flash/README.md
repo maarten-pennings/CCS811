@@ -14,7 +14,7 @@ So if your application uses the onboard thermistor, do not upgrade from 1.x.x to
 ## Introduction
 The CCS811 has an internal micro controller with a boot loader and the gas application.
 As the [datasheet](http://ams.com/ccs811) explains the boot loader can be used to replace the gas application.
-Since most Chinese boards come with firmware 1.1.0, and ams has released firmware 2.0.0, I have written 
+Since most Chinese boards come with firmware 1.1.0, and ams has released firmware 2.0.0 (around april 2018), I have written 
 this example: it flashes 2.0.0 into a CCS811.
 
 
@@ -24,7 +24,7 @@ I have downloaded the 2.0.0 firmware from the ams pages
 Note that this file has `1-00` as version, but that the description 
 specifies `CCS811 Application firmware version 2.0.0`.
 
-I have written a Python script [hex.py](hex.py).
+I have written a Python script [hex.py](hex.py), Python 3.x - not Python 2.x.
 I used it to convert the binary firmware file to a C-array as follows
 ```
 python hex.py CCS811_SW000246_1-00.bin > CCS811_SW000246_1-00.h
