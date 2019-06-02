@@ -136,17 +136,17 @@ loop: ended ...
 ## Success rate
 Table with successful flashes.
 
-| # | Person            | When         | Lib      | Board           | Host                | IDE         |
-|:-:|:-----------------:|:------------:|:--------:|:---------------:|:-------------------:|:-----------:|
-| 1 | @maarten-pennings | 2018 Dec  5  | v8       | ams eval kit    | ESP8266 (Robotdyn)  |  Arduino    |
-| 2 | @maarten-pennings | 2018 Dec  7  | v8       | CJMCU-811       | ESP8266 (Robotdyn)  |  Arduino    |
-| 3 | @bfaliszek        | 2018 Dec 17  | v8       | CJMCU-811       | ESP8266             |  Arduino    |
-| 4 | @rovale           | 2018 Dec 28  | v8       | CJMCU-811       | ESP32 (LOLIN D32)   |  Arduino    |
-| 5 | @bertrik          | 2019 Jan 03  | v8       | CJMCU-811       | ESP8266 (d1 mini)   |  platformio |
-| 6 | @bfaliszek        | 2019 Jan 04  | v8       | CCS811/HDC1080  | ESP8266             |  Arduino    |
-| 7 | Kees M            | 2019 Jan 13  | v8       | CJMCU-811       | Arduino nano        |  Arduino    |
-| 8 | @maarten-pennings | 2019 Jan 18  | v9       | ams eval kit    | Arduino nano        |  Arduino    |
-| 9 | @maarten-pennings | 2019 Jan 18  | v9       | CJMCU-811       | ESP8266 (Wemos)     |  Arduino    |
-
+|  # | Person            | When         | Lib      | Board           | Host                | IDE         |
+|:--:|:-----------------:|:------------:|:--------:|:---------------:|:-------------------:|:-----------:|
+|  1 | @maarten-pennings | 2018 Dec  5  | v8       | ams eval kit    | ESP8266 (Robotdyn)  |  Arduino    |
+|  2 | @maarten-pennings | 2018 Dec  7  | v8       | CJMCU-811       | ESP8266 (Robotdyn)  |  Arduino    |
+|  3 | @bfaliszek        | 2018 Dec 17  | v8       | CJMCU-811       | ESP8266             |  Arduino    |
+|  4 | @rovale           | 2018 Dec 28  | v8       | CJMCU-811       | ESP32 (LOLIN D32)   |  Arduino    |
+|  5 | @bertrik          | 2019 Jan 03  | v8       | CJMCU-811       | ESP8266 (d1 mini)   |  platformio |
+|  6 | @bfaliszek        | 2019 Jan 04  | v8       | CCS811/HDC1080  | ESP8266             |  Arduino    |
+|  7 | Kees M            | 2019 Jan 13  | v8       | CJMCU-811       | Arduino nano        |  Arduino    |
+|  8 | @maarten-pennings | 2019 Jan 18  | v9       | ams eval kit    | Arduino nano        |  Arduino    |
+|  9 | @maarten-pennings | 2019 Jan 18  | v9       | CJMCU-811       | ESP8266 (Wemos)     |  Arduino    |
+| 10 | @bill-orange      | 2019 May 31  | v10      | Adafruit CCS811 | unknown             |  unknown    |
 
 (end of doc)
