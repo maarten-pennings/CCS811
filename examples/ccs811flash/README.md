@@ -149,5 +149,6 @@ Table with successful flashes.
 |  9 | @maarten-pennings | 2019 Jan 18  | v9       | CJMCU-811       | ESP8266 (Wemos)     |  Arduino    |
 | 10 | @hmax42           | 2019 Mar 14  | v10      | CJMCU-811       | ESP8266             |  unknown    |
 | 11 | @bill-orange      | 2019 May 31  | v10      | Adafruit CCS811 | unknown             |  unknown    |
+| 12 | @msbjx5           | 2019 Jun 26  | v10      | CJMCU-811       | WEMOS D1            |  Arduino    |
 
 (end of doc)
