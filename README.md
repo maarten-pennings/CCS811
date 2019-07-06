@@ -69,7 +69,7 @@ This library has been tested with
 
 Note that the CCS811 requires a supply voltage of 1.8V .. 3.6V.
 So, 3.3V is ok, but *do not use a 5V board*.
-The Nano has 3v3 out pin, but runs I2C on 5V. This poses a risk for the CCS811. 
+The Nano has a "3v3 out" pin, but that's only a power out pin, the micro drives the I2C lines on 5V. This poses a risk to the CCS811. 
 Also note that the minimum supply voltage of the CCS811 is 1.8V and should not drop below this value for
 reliable device operation.
 
@@ -82,10 +82,10 @@ It is recommended to add 10k pull-ups on both SDA and SCL.
 
 ### Wiring
 The CCS811 has several pins:
- - VDD must be connected to 3V3.
- - GND must be connected to GND.
- - SDA must be connected to SDA of micro (and maybe a pull-up, but the below micros have that internally).
- - SCL must be connected to SCL of micro (and maybe a pull-up, but the below micros have that internally).
+ - VDD must be connected to 3V3 of the micro.
+ - GND must be connected to GND of the micro.
+ - SDA must be connected to SDA of the micro (and maybe a pull-up, but the below micros have that internally).
+ - SCL must be connected to SCL of the micro (and maybe a pull-up, but the below micros have that internally).
  - nWAKE can either be tied to GND, in which case the CCS811 is always awake (using more power).
    Alternatively nWAKE can be tied to a GPIO pin of the micro, the CCS library will then use this pin to wake-up the micro when needed.
    In the former case pass -1 to the constructor `CCS811 ccs811(-1)`, in the latter case, pass the pin number, e.g. `CCS811 ccs811(D3)`.
@@ -138,7 +138,12 @@ For the Pro Mini (do *not* use a 5V board), connect as follows  (I did not use p
 
 
 ### Arduino Nano
-The Nano has 3v3 supply, but runs I2C on 5V. This does seem to work, but might be risky for the CCS811.
+The Nano runs on 5V and it also drives its I2C lines at 5V. Yes, it has a 3V3 pin, but that is just a "power out" pin.
+Driving the CCS811 with a Nano did work for me (I forgot to check the datasheets), but is out of spec for the CCS811:
+
+> The CCS811 datasheet specifies that logic high is at most 1.0 x VDD (i.e. 3v3), 
+> connecting the CCS811 to the I2C pins of the Nano (at 5V) is thus a risk for the CCS811.
+
 For the Arduino Nano, connect as follows  (I did not use pull-ups, presumably they are inside the MCU).
 
 | CCS811  |    Nano   |
@@ -150,10 +155,6 @@ For the Arduino Nano, connect as follows  (I did not use pull-ups, presumably th
 | nWAKE   | D3 or GND |
 
 ![wiring nano](wire-nanov3.jpg)
-
-[WARNING] The Nano board has a 3v3 supply pin, but the micro controller itself runs on 5V. 
-Since the CCS811 datasheet specifies that logic high is at most 1.0 x VDD (i.e. 3v3), 
-connecting the CCS811 to the I2C pins of the Nano (at 5V) is a risk for the CCS811.
 
 
 ### ESP32
@@ -219,8 +220,8 @@ To build, flash and run an example sketch
      ```
  - It is normal that early measurements do not provide data yet; the internal gas library needs some data points to startup.
 
- - At the time of writing this application, `application version: 2000` is available on the ams.com website.
+ - At the time of developing this github project, `application version: 2000` is available on the ams.com website.
    You might still have version 1100. To flash version 2000, you need the [CCS811 eval kit](https://ams.com/ccs811evalkit).
-   As an alternative, you could try my [flash example](examples/ccs811flash) - on your own risk.
+   As an alternative, you could try my [flash example](examples/ccs811flash) - at your own risk.
  
 (end of doc)
