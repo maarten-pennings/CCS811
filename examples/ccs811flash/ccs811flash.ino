@@ -13,7 +13,13 @@
 
 
 // Wiring for ESP8266 NodeMCU boards: VDD to 3V3, GND to GND, SDA to D2, SCL to D1, nWAKE to D3 (or GND)
+#ifdef ARDUINO_ARCH_ESP8266 // ESP8266 core for Arduino - 2.5.2 or later
 CCS811 ccs811(D3); // nWAKE on D3
+#elif defined ARDUINO_ARCH_ESP32 // Arduino core for the ESP32 - 1.0.4-rc1 or later
+#define CCS811_SDA 18 // SDA on D18/IO18
+#define CCS811_SCL 19 // SCL on D19/IO19 
+CCS811 ccs811(23); // nWAKE on D23/IO23
+#endif
 
 // Wiring for Nano: VDD to 3v3, GND to GND, SDA to A4, SCL to A5, nWAKE to 13
 //CCS811 ccs811(13); 
@@ -30,7 +36,11 @@ void setup() {
   Serial.print("setup: library     version: "); Serial.println(CCS811_VERSION);
 
   // Enable I2C
-  Wire.begin(); 
+#ifdef ARDUINO_ARCH_ESP8266
+  Wire.begin();
+#elif defined ARDUINO_ARCH_ESP32
+  Wire.begin(CCS811_SDA, CCS811_SCL);
+#endif
   
   // Enable CCS811
   ccs811.set_i2cdelay(50); // Needed for ESP8266 because it doesn't handle I2C clock stretch correctly
