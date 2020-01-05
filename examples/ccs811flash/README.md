@@ -152,5 +152,6 @@ Table with successful flashes.
 | 12 | @msbjx5           | 2019 Jun 26  | v10      | CJMCU-811                  | WEMOS D1            |  Arduino    |
 | 13 | @regnerus         | 2019 Jul  4  | v10      | CJMCU-8118 (CCS811+HDC1080)| WEMOS D1            |  unknown    |
 | 14 | @Phycheplabowa    | 2019 Nov 5   | v10      | CJMCU-811 + CJMCU-8128 (5x)| ESP8266             | platformio  |
+| 15 | @SFeli            | 2019 Dec 29  | v10      | CJMCU-8128                 | ESP32               | Arduino     |
 
 (end of doc)
