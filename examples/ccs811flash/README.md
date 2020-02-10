@@ -154,5 +154,6 @@ Table with successful flashes.
 | 14 | @Phycheplabowa    | 2019 Nov 5   | v10      | CJMCU-811 + CJMCU-8128 (5x)| ESP8266             | platformio  |
 | 15 | @SFeli            | 2019 Dec 29  | v10      | CJMCU-8128                 | ESP32               | Arduino     |
 | 16 | @ciphercore       | 2020 Jan 10  | v10      | CJMCU-811                  | Arduino Uno         | Arduino     |
+| 17 | @luytendries      | 2020 Feb 10  | v10      | CJMCU-811                  | ESP32               | Arduino     |
 
 (end of doc)
