@@ -1,6 +1,6 @@
 /*
   ccs811flash.ino - Sketch to flash a CCS811 with 2.0.0 firmware.
-  Created by Maarten Pennings 2018 Dec 10
+  Created by Maarten Pennings 2018 Dec 10, updated 2020-03-07 change on ams website
 */
 
 
@@ -9,7 +9,7 @@
 
 
 // The firmware image as byte array in C
-#include "CCS811_SW000246_1-00.h"
+#include "CCS811_FW_App_v2-0-0.h"
 
 
 // Wiring for ESP8266 NodeMCU boards: VDD to 3V3, GND to GND, SDA to D2, SCL to D1, nWAKE to D3 (or GND)
