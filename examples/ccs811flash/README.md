@@ -22,8 +22,8 @@ this example: it flashes 2.0.0 into a CCS811.
 The firmware is available from the [ams web](http://ams.com/ccs811#tab/tools).
 I have downloaded the "CCS811 Application firmware version 2.0.0" zip file.
 It contains two binaries (now, 2020 March 7)
- - [Firmware_version_2-0-0.bin](Firmware_version_2-0-0.bin) converted to [Firmware_version_2-0-0.h](Firmware_version_2-0-0.h)
- - [Firmware_version_2-0-1.bin](Firmware_version_2-0-1.bin) converted to [Firmware_version_2-0-1.h](Firmware_version_2-0-1.h)
+ - [CCS811_FW_App_v2-0-0.bin](CCS811_FW_App_v2-0-0.bin) converted to [CCS811_FW_App_v2-0-0.h](CCS811_FW_App_v2-0-0.h)
+ - [CCS811_FW_App_v2-0-1.bin](CCS811_FW_App_v2-0-1.bin) converted to [CCS811_FW_App_v2-0-1.h](CCS811_FW_App_v2-0-1.h)
 
 As the readme in the zip explains, new fresh sensors should use firmware 2-0-0, and sensors that have run 
 for a number of days should use firmware 2-0-1. As the revision history in the zip explains, the 2-0-1 has
