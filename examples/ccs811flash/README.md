@@ -18,24 +18,37 @@ Since most Chinese boards come with firmware 1.1.0, and ams has released firmwar
 this example: it flashes 2.0.0 into a CCS811.
 
 
-## Process
-I have downloaded the 2.0.0 firmware from the ams pages
-[CCS811_SW000246_1-00.bin](http://ams.com/ccs811#tab/tools).
-Note that this file has `1-00` as version, but that the description 
-specifies `CCS811 Application firmware version 2.0.0`.
+## Firmware
+The firmware is available from the [ams web](http://ams.com/ccs811#tab/tools).
+I have downloaded the "CCS811 Application firmware version 2.0.0" zip file.
+It contains two binaries (now, 2020 March 7)
+ - [Firmware_version_2-0-0.bin](Firmware_version_2-0-0.bin) converted to [Firmware_version_2-0-0.h](Firmware_version_2-0-0.h)
+ - [Firmware_version_2-0-1.bin](Firmware_version_2-0-1.bin) converted to [Firmware_version_2-0-1.h](Firmware_version_2-0-1.h)
 
+As the readme in the zip explains, new fresh sensors should use firmware 2-0-0, and sensors that have run 
+for a number of days should use firmware 2-0-1. As the revision history in the zip explains, the 2-0-1 has
+all the features of the 2-0-0, except that the burn-in compensation is disabled (hence it should be used
+on sensors that are already burned in).
+
+Note that after a couple of days (i.e. at the end of the burn-in period), the burn-in compensation of 
+2-0-0 also stops. From this moment onwards, 2-0-0 and 2-0-1 are identical.
+
+
+## Process
+I have downloaded the 2.0.x firmware from the ams pages.
 I have written a Python script [hex.py](hex.py), Python 3.x - not Python 2.x.
-I used it to convert the binary firmware file to a C-array as follows
+It is used to convert a binary firmware file to a C-array as follows
 ```
-python hex.py CCS811_SW000246_1-00.bin > CCS811_SW000246_1-00.h
+python hex.py CCS811_FW_App_v2-0-0.bin > CCS811_FW_App_v2-0-0.h
 ```
-The resulting text file `CCS811_SW000246_1-00.h` starts like this
+
+The resulting text file `CCS811_FW_App_v2-0-0.h` starts like this
 ```
-// Hex dump of 'CCS811_SW000246_1-00.bin' created at 2018-12-07 17:18:12.111495
+// Hex dump of 'CCS811_FW_App_v2-0-0.bin' created at 2020-03-07 17:59:19.992906
 
 #include <stdint.h>
 
-const char * image_name="CCS811_SW000246_1-00.bin";
+const char * image_name="CCS811_FW_App_v2-0-0.bin";
 const uint8_t image_data[] PROGMEM = {
   0x5c, 0x1a, 0xdd, 0xff, 0x15, 0x25, 0xdd, 0x66,   0xfc, 0x88, 0x80, 0x49, 0x02, 0xdc, 0x17, 0x10, 
   0x1f, 0x73, 0x60, 0xae, 0xf4, 0xa0, 0x5d, 0xda,   0xcd, 0xca, 0x94, 0xc6, 0x6b, 0x96, 0x4f, 0xea, 
@@ -45,6 +58,21 @@ const uint8_t image_data[] PROGMEM = {
 
 Finally, I have written a sketch [ccs811flash.ino](ccs811flash.ino) that uses this array to 
 flash the CSS811.
+
+If you prefer 2-0-1 instead of 2-0-0, please change the line 12
+```
+// The firmware image as byte array in C
+#include "CCS811_FW_App_v2-0-0.h"
+```
+
+to
+
+```
+// The firmware image as byte array in C
+#include "CCS811_FW_App_v2-0-1.h"
+```
+
+
 
 
 ## Example
@@ -56,7 +84,7 @@ setup: library version: 9
 setup: hardware    version: 12
 setup: bootloader  version: 1000
 setup: application version: 1100
-setup: starting flash of 'CCS811_SW000246_1-00.bin' in 5 seconds
+setup: starting flash of 'CCS811_FW_App_v2-0-0.bin' in 5 seconds
 
 ccs811: ping ok
 ccs811: reset ok
@@ -106,7 +134,7 @@ setup: CCS811 begin FAILED
 setup: hardware version: FD
 setup: bootloader version: FDFD
 setup: application version: FDFD
-setup: starting flash of 'CCS811_SW000246_1-00.bin' in 5 seconds
+setup: starting flash of CCS811_FW_App_v2-0-0.bin' in 5 seconds
 
 ccs811: ping ok
 ccs811: reset ok
