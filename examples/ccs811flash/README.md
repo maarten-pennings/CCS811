@@ -33,6 +33,9 @@ on sensors that are already burned in).
 Note that after a couple of days (i.e. at the end of the burn-in period), the burn-in compensation of 
 2-0-0 also stops. From this moment onwards, 2-0-0 and 2-0-1 are identical.
 
+I explained how I believe it works in more detail in an 
+[issue](https://github.com/maarten-pennings/CCS811/issues/8#issuecomment-580410288).
+
 
 ## Process
 I have downloaded the 2.0.x firmware from the ams pages.
