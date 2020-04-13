@@ -188,5 +188,6 @@ Table with successful flashes.
 | 17 | @luytendries      | 2020 Feb 10  | v10      | CJMCU-811                  | ESP32               | Arduino     |
 | 18 | @soczkers         | 2020 Apr  1  | v10      | CJMCU-8128                 | ESP32 (lolin lite)  | Arduino     |
 | 19 | @dadosch          | 2020 Apr 10  | v10      | ?                          | ?                   | ?           |
+| 20 | @Roelski          | 2020 Apr 11  | v10      | HDC1080                    | EPS32               | ?           |
 
 (end of doc)
