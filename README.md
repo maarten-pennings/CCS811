@@ -27,6 +27,8 @@ The CCS811 is made by [ams](https://www.ams.com).
  - Find the latest in-chip firmware on the
    [Tools & Support](http://ams.com/ccs811#tab/tools) tab: CCS811_SW000246_x-xx.bin.
 
+It seems somebody put my library in [platformio](https://platformio.org/lib/show/1609/CCS811).
+I'm not sure who, and I don't know if it is a "link" to github or a copy. The github version is the one I maintain.
 
 ## Software
 This section gives a quick overview of how to install this library and compile one of its 
