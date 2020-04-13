@@ -187,5 +187,6 @@ Table with successful flashes.
 | 16 | @ciphercore       | 2020 Jan 10  | v10      | CJMCU-811                  | Arduino Uno         | Arduino     |
 | 17 | @luytendries      | 2020 Feb 10  | v10      | CJMCU-811                  | ESP32               | Arduino     |
 | 18 | @soczkers         | 2020 Apr  1  | v10      | CJMCU-8128                 | ESP32 (lolin lite)  | Arduino     |
+| 19 | @dadosch          | 2020 Apr 10  | v10      | ?                          | ?                   | ?           |
 
 (end of doc)
