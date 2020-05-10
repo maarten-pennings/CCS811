@@ -19,16 +19,13 @@ The rest of this page tells how to get started on the software (install library)
 
 
 ## Links
-The CCS811 is made by [ams](https://www.ams.com). 
- - Find the datasheet of the CCS811 on the
-   [product page](https://ams.com/ccs811).
- - Find application notes and software on the
-   [Technical Documents](http://ams.com/ccs811#tab/documents) tab.
- - Find the latest in-chip firmware on the
-   [Tools & Support](http://ams.com/ccs811#tab/tools) tab: CCS811_SW000246_x-xx.bin.
-
-It seems somebody put my library in [platformio](https://platformio.org/lib/show/1609/CCS811).
-I'm not sure who, and I don't know if it is a "link" to github or a copy. The github version is the one I maintain.
+The CCS811 is made by [ScioSense](https://www.sciosense.com/) formerly [ams](http://ams.com).
+ - Find the [datasheet](https://www.sciosense.com/wp-content/uploads/2020/01/CCS811-Datasheet.pdf) of the CCS811 on the
+   [product page](https://www.sciosense.com/products/environmental-sensors/ccs811-gas-sensor-solution/).
+ - It seems somebody put my library in [platformio](https://platformio.org/lib/show/1609/CCS811).
+   I'm not sure who, and I don't know if it is a "link" to github or a copy. This github version is the one I maintain.
+ - Sciosense has a [github account](https://github.com/sciosense) 
+   with a fork of [this library](https://github.com/sciosense/CCS811_driver).
 
 ## Software
 This section gives a quick overview of how to install this library and compile one of its 
