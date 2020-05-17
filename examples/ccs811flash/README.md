@@ -37,11 +37,11 @@ I explained how I believe it works in more detail in an
 [issue](https://github.com/maarten-pennings/CCS811/issues/8#issuecomment-580410288).
 
 One of the users of this flash tool ([daferdur](https://github.com/daferdur)), 
-found the binary of 1.0.0, and published that in an 
+[found](https://github.com/ryankurte/efm32-base/blob/master/hardware/kit/common/bsp/thunderboard/ccs811_fw_app_1v0p0.bin)
+the binary of 1.0.0, and published that in an 
 [issue](https://github.com/maarten-pennings/CCS811/issues/49#issue-619413200).
 I have included that [CCS811_FW_App_v1-0-0.bin](CCS811_FW_App_v1-0-0.bin) and the converted 
 [CCS811_FW_App_v1-0-0.h](CCS811_FW_App_v1-0-0.h) header in this repo, in case you want to downgrade.
-
 I have not tried this myself!
 
 ## Process
