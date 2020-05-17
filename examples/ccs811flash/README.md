@@ -19,7 +19,7 @@ this example: it flashes 2.0.0 into a CCS811.
 
 
 ## Firmware
-The firmware is available from the [ams web](http://ams.com/ccs811#tab/tools).
+The firmware was available from the [ams web](http://ams.com/ccs811#tab/tools).
 I have downloaded the "CCS811 Application firmware version 2.0.0" zip file.
 It contains two binaries (now, 2020 March 7)
  - [CCS811_FW_App_v2-0-0.bin](CCS811_FW_App_v2-0-0.bin) converted to [CCS811_FW_App_v2-0-0.h](CCS811_FW_App_v2-0-0.h)
@@ -36,6 +36,13 @@ Note that after a couple of days (i.e. at the end of the burn-in period), the bu
 I explained how I believe it works in more detail in an 
 [issue](https://github.com/maarten-pennings/CCS811/issues/8#issuecomment-580410288).
 
+One of the users of this flash tool ([daferdur](https://github.com/daferdur)), 
+found the binary of 1.0.0, and published that in an 
+[issue](https://github.com/maarten-pennings/CCS811/issues/49#issue-619413200).
+I have included that [CCS811_FW_App_v1-0-0.bin](CCS811_FW_App_v1-0-0.bin) and the converted 
+[CCS811_FW_App_v1-0-0.h](CCS811_FW_App_v1-0-0.h) header in this repo, in case you want to downgrade.
+
+I have not tried this myself!
 
 ## Process
 I have downloaded the 2.0.x firmware from the ams pages.
