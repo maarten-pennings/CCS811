@@ -1,5 +1,5 @@
 # CCS811
-Arduino library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+Arduino library for the CCS811 digital gas sensor for monitoring indoor air quality from ScioSense.
 
 There is a [Spanish guide](docs/Procedimiento_para_la_actualización_de_firmwareCCS811_1.1.pdf).
 
@@ -179,7 +179,7 @@ However, this seems to be fixed in release 1.0.1, so use that.
 
 
 ### CCS811
-Connect the official ams CCS811 module, which also has an ENS210, as follows
+Connect the official CCS811 module, which also has an ENS210, as follows
 
 ![wiring CCS811](wire-ccs811.jpg)
 
@@ -220,8 +220,8 @@ To build, flash and run an example sketch
      ```
  - It is normal that early measurements do not provide data yet; the internal gas library needs some data points to startup.
 
- - At the time of developing this github project, `application version: 2000` is available on the ams.com website.
-   You might still have version 1100. To flash version 2000, you need the [CCS811 eval kit](https://ams.com/ccs811evalkit).
+ - At the time of developing this github project, `application version: 2000` is available on the ams website.
+   You might still have version 1100. To flash version 2000, you need the [CCS811 eval kit](https://www.sciosense.com/products/environmental-sensors/evaluation-kit-for-ccs811/).
    As an alternative, you could try my [flash example](examples/ccs811flash) - at your own risk.
  
 (end of doc)
