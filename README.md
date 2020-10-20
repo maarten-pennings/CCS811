@@ -1,6 +1,7 @@
 # CCS811
 Arduino library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
 
+There is a [Spanish guide](docs/Procedimiento_para_la_actualización_de_firmwareCCS811_1.1.pdf).
 
 ## Introduction
 This project is an Arduino *library*. It implements a driver for the CCS811.
