@@ -198,4 +198,5 @@ Table with successful flashes.
 | 20 | @Roelski          | 2020 Apr 11  | v10      | HDC1080                    | EPS32               | ?           |
 | 21 | @fcar12           | 2021 Feb 11  | v10      | CJMCU-811                  | Arduino Uno         | Arduino     |
 | 22 | @piecol           | 2021 Jun 11  | v10      | HELTEC CCS811 capsule addon| HTCC-AM02           | Arduino     |
+
 (end of doc)
