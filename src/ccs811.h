@@ -1,5 +1,6 @@
 /*
   ccs811.h - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2019 feb 02  v11  Erwin Ried        Added envdata with C and % as parameters
   2019 jan 22  v10  Maarten Pennings  Added F() on all strings, added get/set_baseline()
   2019 jan 15   v9  Maarten Pennings  Flash&i2cwrite now use const array
   2018 dec 06   v8  Maarten Pennings  Added firmware flash routine
@@ -75,6 +76,7 @@ class CCS811 {
     int  application_version(void);                                           // Gets version of the CCS811 application (returns -1 on I2C failure)
     int  get_errorid(void);                                                   // Gets the ERROR_ID [same as 'err' part of 'errstat' in 'read'] (returns -1 on I2C failure)
     bool set_envdata(uint16_t t, uint16_t h);                                 // Writes t and h to ENV_DATA (see datasheet for format). Returns false on I2C problems.
+    bool set_envdataDHT(float temperature, float relativeHumidity);              // Writes temperature and relativeHumidity (with temperature in C and humidity as percent) to ENV_DATA . Returns false on I2C problems.
     bool set_envdata210(uint16_t t, uint16_t h);                              // Writes t and h (in ENS210 format) to ENV_DATA. Returns false on I2C problems.
     bool get_baseline(uint16_t *baseline);                                    // Reads (encoded) baseline from BASELINE. Returns false on I2C problems. Get it, just before power down (but only when sensor was on at least 20min) - see CCS811_AN000370
     bool set_baseline(uint16_t baseline);                                     // Writes (encoded) baseline to BASELINE. Returns false on I2C problems. Set it, after power up (and after 20min)
