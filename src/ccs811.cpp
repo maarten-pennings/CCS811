@@ -320,6 +320,17 @@ bool CCS811::set_envdata(uint16_t t, uint16_t h) {
   return ok;
 }
 
+bool CCS811::set_envdata(float t, float h) {
+  // Ensure values are within reasonable range
+  t = max((float) -25, min(t, (float) 50));
+  h = max((float) 0, min(h, (float) 100));
+
+  uint16_t t16 = (t + 25) * 512; // Offset +25 degrees (see datasheet)
+  uint16_t h16 = h * 512;
+
+  return CCS811::set_envdata(t16, h16);
+}
+
 
 // Writes t and h (in ENS210 format) to ENV_DATA. Returns false on I2C problems.
 bool CCS811::set_envdata210(uint16_t t, uint16_t h) {
