@@ -21,7 +21,7 @@ The rest of this page tells how to get started on the software (install library)
 
 ## Links
 The CCS811 is made by [ScioSense](https://www.sciosense.com/) formerly [ams](http://ams.com).
- - Find the [datasheet](https://www.sciosense.com/wp-content/uploads/2020/01/CCS811-Datasheet.pdf) of the CCS811 on the
+ - Find the [datasheet](https://www.sciosense.com/wp-content/uploads/documents/SC-001232-DS-2-CCS811B-Datasheet-Revision-2.pdf) of the CCS811 on the
    [product page](https://www.sciosense.com/products/environmental-sensors/ccs811-gas-sensor-solution/).
  - It seems somebody put my library in [platformio](https://platformio.org/lib/show/1609/CCS811).
    I'm not sure who, and I don't know if it is a "link" to github or a copy. This github version is the one I maintain.
@@ -223,5 +223,36 @@ To build, flash and run an example sketch
  - At the time of developing this github project, `application version: 2000` is available on the ams website.
    You might still have version 1100. To flash version 2000, you need the [CCS811 eval kit](https://www.sciosense.com/products/environmental-sensors/evaluation-kit-for-ccs811/).
    As an alternative, you could try my [flash example](examples/ccs811flash) - at your own risk.
+
+## Error flasg overview
+The `read` function returns a 16-bit "concatenation" of the 8 bit ERROR_ID and the 8 bit STATUS.
+If there is an error, you can use the `CCS811_ERRSTAT_XXX` macros to find the offending bit flag.
+Alternatively, the `errstat_str()` method prints a character per flag, uppercase when set.
+Find an overview below.
+
+```
+    ERROR_ID STATUS
+    76543210 76543210
+    --VHXMRW F--AD-IE
+    --vhxmrw f--ad-ie
+    |||||||| ||||||||
+    |||||||| |||||||CCS811_ERRSTAT_ERROR    - There is an error, the ERROR_ID register (0xE0) contains the error source
+    |||||||| ||||||CCS811_ERRSTAT_I2CFAIL   - Bit flag added by _software_ (so not explained in datasheet): I2C transaction error       
+	|||||||| |||||Reserved
+    |||||||| ||||CCS811_ERRSTAT_DATA_READY  - A new data sample is ready in ALG_RESULT_DATA     
+    |||||||| |||CCS811_ERRSTAT_APP_VALID    - Valid application firmware loaded    
+    |||||||| ||app verify (boot mode only)
+    |||||||| |app erase (boot mode only)
+    |||||||| CCS811_ERRSTAT_FW_MODE         - Firmware is in application mode (not boot mode) 
+	||||||||
+    |||||||CCS811_ERRSTAT_WRITE_REG_INVALID - The CCS811 received an I²C write request addressed to this station but with invalid register address ID
+    ||||||CCS811_ERRSTAT_READ_REG_INVALID   - The CCS811 received an I²C read request to a mailbox ID that is invalid
+    |||||CCS811_ERRSTAT_MEASMODE_INVALID    - The CCS811 received an I²C request to write an unsupported mode to MEAS_MODE
+    ||||CCS811_ERRSTAT_MAX_RESISTANCE       - The sensor resistance measurement has reached or exceeded the maximum range
+    |||CCS811_ERRSTAT_HEATER_FAULT          - The heater current in the CCS811 is not in range
+    ||CCS811_ERRSTAT_HEATER_SUPPLY          - The heater voltage is not being applied correctly
+    |Reserved
+    Reserved                          
+```
  
 (end of doc)
