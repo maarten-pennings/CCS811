@@ -1,5 +1,6 @@
 /*
   ccs811.cpp - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2021 jul 10  v11  Maarten Pennings  API comments improved
   2019 jan 22  v10  Maarten Pennings  Added F() on all strings, added get/set_baseline()
   2019 jan 15   v9  Maarten Pennings  Function set_envdata did not write T; flash now uses PROGMEM array; flash now works without app, better PRINT macros, removed warnings
   2018 dec 06   v8  Maarten Pennings  Added firmware flash routine
@@ -185,7 +186,7 @@ abort_begin:
 }
 
 
-// Switch CCS811 to `mode`, use constants CCS811_MODE_XXX. Returns false on problems.
+// Switch CCS811 to `mode`, use constants CCS811_MODE_XXX. Returns false on I2C problems.
 bool CCS811::start( int mode ) {
   uint8_t meas_mode[]= {(uint8_t)(mode<<4)};
   wake_up();
@@ -195,7 +196,7 @@ bool CCS811::start( int mode ) {
 }
 
 
-// Get measurement results from the CCS811, check status via errstat, e.g. ccs811_errstat(errstat)
+// Get measurement results from the CCS811 (all args may be NULL), check status via errstat, e.g. ccs811_errstat(errstat)
 void CCS811::read( uint16_t*eco2, uint16_t*etvoc, uint16_t*errstat,uint16_t*raw) {
   bool    ok;
   uint8_t buf[8];
@@ -257,7 +258,7 @@ const char * CCS811::errstat_str(uint16_t errstat) {
 // Extra interface ========================================================================================
 
 
-// Gets version of the CCS811 hardware (returns 0 on I2C failure)
+// Gets version of the CCS811 hardware (returns -1 on I2C failure).
 int CCS811::hardware_version(void) {
   uint8_t buf[1];
   wake_up();
@@ -269,7 +270,7 @@ int CCS811::hardware_version(void) {
 }
 
 
-// Gets version of the CCS811 boot loader (returns 0 on I2C failure)
+// Gets version of the CCS811 bootloader (returns -1 on I2C failure).
 int CCS811::bootloader_version(void) {
   uint8_t buf[2];
   wake_up();
@@ -281,7 +282,7 @@ int CCS811::bootloader_version(void) {
 }
 
 
-// Gets version of the CCS811 application (returns 0 on I2C failure)
+// Gets version of the CCS811 application (returns -1 on I2C failure).
 int CCS811::application_version(void) {
   uint8_t buf[2];
   wake_up();
@@ -293,7 +294,7 @@ int CCS811::application_version(void) {
 }
 
 
-// Gets the ERROR_ID [same as 'err' part of 'errstat' in 'read'] (returns -1 on I2C failure)
+// Gets the ERROR_ID [same as 'err' part of 'errstat' in 'read'] (returns -1 on I2C failure).
 // Note, this actually clears CCS811_ERROR_ID (hardware feature)
 int CCS811::get_errorid(void) {
   uint8_t buf[1];
@@ -310,7 +311,7 @@ int CCS811::get_errorid(void) {
 #define LO(u16) ( (uint8_t)( ((u16)>>0)&0xFF ) )
 
 
-// Writes t and h to ENV_DATA (see datasheet for format). Returns false on I2C problems.
+// Writes t and h to ENV_DATA (see datasheet for CCS811 format). Returns false on I2C problems.
 bool CCS811::set_envdata(uint16_t t, uint16_t h) {
   uint8_t envdata[]= { HI(h), LO(h), HI(t), LO(t) };
   wake_up();
@@ -337,7 +338,8 @@ bool CCS811::set_envdata210(uint16_t t, uint16_t h) {
 }
 
 
-// Reads (encoded) baseline from BASELINE (see datasheet). Returns false on I2C problems.
+// Reads (encoded) baseline from BASELINE. Returns false on I2C problems. 
+// Get it, just before power down (but only when sensor was on at least 20min) - see CCS811_AN000370.
 bool CCS811::get_baseline(uint16_t *baseline) {
   uint8_t buf[2];
   wake_up();
@@ -348,7 +350,7 @@ bool CCS811::get_baseline(uint16_t *baseline) {
 }
 
 
-// Writes (encoded) baseline to BASELINE (see datasheet). Returns false on I2C problems.
+// Writes (encoded) baseline to BASELINE. Returns false on I2C problems. Set it, after power up (and after 20min).
 bool CCS811::set_baseline(uint16_t baseline) {
   uint8_t buf[]= { HI(baseline), LO(baseline) };
   wake_up();
@@ -358,7 +360,7 @@ bool CCS811::set_baseline(uint16_t baseline) {
 }
 
 
-// Flashes the firmware of the CCS811 with size bytes from image - image _must_ be in PROGMEM
+// Flashes the firmware of the CCS811 with size bytes from image - image _must_ be in PROGMEM.
 bool CCS811::flash(const uint8_t * image, int size) {
   uint8_t sw_reset[]=   {0x11,0xE5,0x72,0x8A};
   uint8_t app_erase[]=  {0xE7,0xA7,0xE6,0x09};
@@ -516,14 +518,14 @@ abort_begin:
 // Advanced interface: i2cdelay ========================================================================================
 
 
-// Delay before a repeated start - needed for e.g. ESP8266 because it doesn't handle I2C clock stretch correctly
+// Delay before a repeated start - needed for e.g. ESP8266 because it doesn't handle I2C clock stretch correctly.
 void CCS811::set_i2cdelay(int us) {
   if( us<0 ) us= 0;
   _i2cdelay_us= us;
 }
 
 
-// Get current delay
+// Get current repeated start delay.
 int  CCS811::get_i2cdelay(void) {
   return _i2cdelay_us;
 }
@@ -532,17 +534,18 @@ int  CCS811::get_i2cdelay(void) {
 // Helper interface: nwake pin ========================================================================================
 
 
-// _nwake<0 means nWAKE is not connected to a pin of the host, so no action needed
+// Configure nwake pin for output. 
+// If nwake<0 (in constructor), then CCS811 nWAKE pin is assumed not connected to a pin of the host, so host will perform no action.
 void CCS811::wake_init( void ) {
   if( _nwake>=0 ) pinMode(_nwake, OUTPUT);
 }
 
-
+// Wake up CCS811, i.e. pull nwake pin low.
 void CCS811::wake_up( void) {
   if( _nwake>=0 ) { digitalWrite(_nwake, LOW); delayMicroseconds(CCS811_WAIT_AFTER_WAKE_US);  }
 }
 
-
+// CCS811 back to sleep, i.e. pull nwake pin high.
 void CCS811::wake_down( void) {
   if( _nwake>=0 ) digitalWrite(_nwake, HIGH);
 }
