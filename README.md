@@ -224,7 +224,7 @@ To build, flash and run an example sketch
    You might still have version 1100. To flash version 2000, you need the [CCS811 eval kit](https://www.sciosense.com/products/environmental-sensors/evaluation-kit-for-ccs811/).
    As an alternative, you could try my [flash example](examples/ccs811flash) - at your own risk.
 
-## Error flasg overview
+## Error flags overview
 The `read` function returns a 16-bit "concatenation" of the 8 bit ERROR_ID and the 8 bit STATUS.
 If there is an error, you can use the `CCS811_ERRSTAT_XXX` macros to find the offending bit flag.
 Alternatively, the `errstat_str()` method prints a character per flag, uppercase when set.
@@ -235,8 +235,10 @@ Find an overview below.
 ```
     ERROR_ID   STATUS
     76543210 76543210
+
     --VHXMRW F--AD-IE
     --vhxmrw f--ad-ie
+
     |||||||| ||||||||
     |||||||| |||||||CCS811_ERRSTAT_ERROR    - There is an error, the ERROR_ID register (0xE0) contains the error source
     |||||||| ||||||CCS811_ERRSTAT_I2CFAIL   - Bit flag added by _software_ (so not explained in datasheet): I2C transaction error       
