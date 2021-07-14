@@ -228,35 +228,39 @@ To build, flash and run an example sketch
 The `read` function returns a 16-bit "concatenation" of the 8 bit ERROR_ID and the 8 bit STATUS.
 If there is an error, you can use the `CCS811_ERRSTAT_XXX` macros to find the offending bit flag.
 Alternatively, the `errstat_str()` method prints a character per flag, uppercase when set.
-The example applications do that.
+The example applications do that. 
+
+Normally you should either see `CCS811_ERRSTAT_OK` or `CCS811_ERRSTAT_OK_NODATA`.
 
 Find an overview below.
 
 ```
-    ERROR_ID   STATUS
-    76543210 76543210
+ERROR_ID   STATUS
+76543210 76543210
 
-    --VHXMRW F--AD-IE
-    --vhxmrw f--ad-ie
+--vhxmrw f--ad-ie                          - Shows all (existing) flags in the down state (cleared)
+--vhxmrw F--A--ie CCS811_ERRSTAT_OK_NODATA - No errors (e), app valid (A), and running (F), no data yet (d)          
+--vhxmrw F--AD-ie CCS811_ERRSTAT_OK        - No errors (e), app valid (A), and running (F), data available (D)
+--VHXMRW F--AD-IE                          - Shows all (existing) flags in the up state (set)
 
-    |||||||| ||||||||
-    |||||||| |||||||CCS811_ERRSTAT_ERROR    - There is an error, the ERROR_ID register (0xE0) contains the error source
-    |||||||| ||||||CCS811_ERRSTAT_I2CFAIL   - Bit flag added by _software_ (so not explained in datasheet): I2C transaction error       
-    |||||||| |||||Reserved
-    |||||||| ||||CCS811_ERRSTAT_DATA_READY  - A new data sample is ready in ALG_RESULT_DATA     
-    |||||||| |||CCS811_ERRSTAT_APP_VALID    - Valid application firmware loaded    
-    |||||||| ||app verify (boot mode only)
-    |||||||| |app erase (boot mode only)
-    |||||||| CCS811_ERRSTAT_FW_MODE         - Firmware is in application mode (not boot mode) 
-    ||||||||
-    |||||||CCS811_ERRSTAT_WRITE_REG_INVALID - The CCS811 received an I²C write request addressed to this station but with invalid register address ID
-    ||||||CCS811_ERRSTAT_READ_REG_INVALID   - The CCS811 received an I²C read request to a mailbox ID that is invalid
-    |||||CCS811_ERRSTAT_MEASMODE_INVALID    - The CCS811 received an I²C request to write an unsupported mode to MEAS_MODE
-    ||||CCS811_ERRSTAT_MAX_RESISTANCE       - The sensor resistance measurement has reached or exceeded the maximum range
-    |||CCS811_ERRSTAT_HEATER_FAULT          - The heater current in the CCS811 is not in range
-    ||CCS811_ERRSTAT_HEATER_SUPPLY          - The heater voltage is not being applied correctly
-    |Reserved
-    Reserved                          
+|||||||| ||||||||
+|||||||| |||||||CCS811_ERRSTAT_ERROR       - There is an error, the ERROR_ID register (0xE0) contains the error source
+|||||||| ||||||CCS811_ERRSTAT_I2CFAIL      - Bit flag added by software (so not in datasheet): I2C transaction error       
+|||||||| |||||Reserved
+|||||||| ||||CCS811_ERRSTAT_DATA_READY     - A new data sample is ready in ALG_RESULT_DATA     
+|||||||| |||CCS811_ERRSTAT_APP_VALID       - Valid application firmware loaded    
+|||||||| ||app verify (boot mode only)
+|||||||| |app erase (boot mode only)
+|||||||| CCS811_ERRSTAT_FW_MODE            - Firmware is in application mode (not boot mode) 
+||||||||
+|||||||CCS811_ERRSTAT_WRITE_REG_INVALID    - The CCS811 received an I²C write request but with invalid register address ID
+||||||CCS811_ERRSTAT_READ_REG_INVALID      - The CCS811 received an I²C read request to a register addres that is invalid
+|||||CCS811_ERRSTAT_MEASMODE_INVALID       - The CCS811 received an I²C request to write an unsupported mode to MEAS_MODE
+||||CCS811_ERRSTAT_MAX_RESISTANCE          - The sensor resistance measurement has reached or exceeded the maximum range
+|||CCS811_ERRSTAT_HEATER_FAULT             - The heater current in the CCS811 is not in range
+||CCS811_ERRSTAT_HEATER_SUPPLY             - The heater voltage is not being applied correctly
+|Reserved
+Reserved                          
 ```
  
 (end of doc)
