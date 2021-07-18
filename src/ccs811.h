@@ -1,5 +1,6 @@
 /*
   ccs811.h - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2021 jul 18  v12  Maarten Pennings  Added set_envdata_Celsius_percRH
   2021 jul 10  v11  Maarten Pennings  API comments improved
   2019 jan 22  v10  Maarten Pennings  Added F() on all strings, added get/set_baseline()
   2019 jan 15   v9  Maarten Pennings  Flash&i2cwrite now use const array
@@ -24,7 +25,7 @@
 
 
 // Version of this CCS811 driver
-#define CCS811_VERSION                     10
+#define CCS811_VERSION                     12 // Also in library.properties and revision history in .h/.cpp
 
 
 // I2C slave address for ADDR 0 respectively 1
@@ -77,6 +78,7 @@ class CCS811 {
     int  get_errorid(void);                                                   // Gets the ERROR_ID [same as 'err' part of 'errstat' in 'read'] (returns -1 on I2C failure).
     bool set_envdata(uint16_t t, uint16_t h);                                 // Writes t and h to ENV_DATA (see datasheet for CCS811 format). Returns false on I2C problems.
     bool set_envdata210(uint16_t t, uint16_t h);                              // Writes t and h (in ENS210 format) to ENV_DATA. Returns false on I2C problems.
+    bool set_envdata_Celsius_percRH(float t, float h);                        // Writes t (in Celsius) and h (in percentage RH) to ENV_DATA. Returns false on I2C problems.
     bool get_baseline(uint16_t *baseline);                                    // Reads (encoded) baseline from BASELINE. Returns false on I2C problems. Get it, just before power down (but only when sensor was on at least 20min) - see CCS811_AN000370.
     bool set_baseline(uint16_t baseline);                                     // Writes (encoded) baseline to BASELINE. Returns false on I2C problems. Set it, after power up (and after 20min).
     bool flash(const uint8_t * image, int size);                              // Flashes the firmware of the CCS811 with size bytes from image - image _must_ be in PROGMEM.

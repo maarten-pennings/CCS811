@@ -1,5 +1,6 @@
 /*
   ccs811.cpp - Library for the CCS811 digital gas sensor for monitoring indoor air quality from ams.
+  2021 jul 18  v12  Maarten Pennings  Added set_envdata_Celsius_percRH
   2021 jul 10  v11  Maarten Pennings  API comments improved
   2019 jan 22  v10  Maarten Pennings  Added F() on all strings, added get/set_baseline()
   2019 jan 15   v9  Maarten Pennings  Function set_envdata did not write T; flash now uses PROGMEM array; flash now works without app, better PRINT macros, removed warnings
@@ -333,6 +334,16 @@ bool CCS811::set_envdata210(uint16_t t, uint16_t h) {
   if( t<lo )      ok= set_envdata(0,h);
   else if( t>hi ) ok= set_envdata(65535,h);
   else            ok= set_envdata( (t-lo)*8+3 , h); // error in 'lo' is 0.4; times 8 is 3.2; so we correct 3
+  // Returns I2C transaction status
+  return ok;
+}
+
+// Writes t (in Celsius) and h (in percentage RH) to ENV_DATA. Returns false on I2C problems.
+bool CCS811::set_envdata_Celsius_percRH(float t, float h) {
+  // We need to map the floats to CCS811 format.
+  // Humidity needs to be written as an unsigned 16 bits in 1/512%RH, e.g. 48.5%RH must be written as 0x6100.
+  // Temperature is also unsigned 16 bits in 1/512 degrees; but with an offset of 25°C, e.g. 23.5% maps to 0x6100.
+  bool ok = set_envdata( (t+25.0)*512, h*512 );
   // Returns I2C transaction status
   return ok;
 }
