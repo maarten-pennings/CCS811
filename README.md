@@ -91,8 +91,8 @@ The CCS811 has several pins:
    In the former case pass -1 to the constructor `CCS811 ccs811(-1)`, in the latter case, pass the pin number, e.g. `CCS811 ccs811(D3)`.
  - nINT can be left dangling, interrupts are not used by the library.
  - nRESET can be left dangling, it is not used by the library (the library employs a software reset).
- - When ADDR is connected the GND, the CCS811 has slave address 0x5A (constant `CCS811_SLAVEADDR_0`).
-   When ADDR is connected the VDD, the CCS811 has slave address 0x5B (constant `CCS811_SLAVEADDR_1`).
+ - When ADDR is connected to GND, the CCS811 has slave address 0x5A (constant `CCS811_SLAVEADDR_0`).
+   When ADDR is connected to VDD, the CCS811 has slave address 0x5B (constant `CCS811_SLAVEADDR_1`).
    If your board has an ADDR pin, then likely it has a pull-up, so leaving it dangling selects 0x5B.
    If your board has no ADDR pin, then likely it has the pin tied to GND, selecting 0x5A.
    The `ccs811.begin()` uses the address passed in the constructor, but if the other address does work, 
