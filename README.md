@@ -122,6 +122,8 @@ in core library version 2.5.0. I submitted and another [issue](https://github.co
 which is not yet released. My suggested do-it-yourself solution is described 
 [here](https://github.com/maarten-pennings/I2C-tool/blob/master/I2Ctest8266/README.md#how-to-fix)
 
+It seems that in Release 2.6.0 (released Nov 9, 2019) includes my I2C fix
+so ESP8266 can be used with CCS811 without problems.
 
 ### Pro Mini
 For the Pro Mini (do *not* use a 5V board), connect as follows  (I did not use pull-ups, presumably they are inside the MCU).
